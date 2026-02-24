@@ -325,7 +325,7 @@ export default function App() {
 
         {/* Legend */}
         <div className="legend">
-          {[["correct","Exact match"],["close","Close (↑↓ direction)"],["wrong","No match"]].map(([cls,lbl]) => (
+          {[["correct","Exact match"],["close","Close"],["wrong","No match"]].map(([cls,lbl]) => (
             <div className="legend-item" key={cls}><div className={`legend-dot ${cls}`} />{lbl}</div>
           ))}
         </div>
