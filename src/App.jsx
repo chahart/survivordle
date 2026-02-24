@@ -282,8 +282,8 @@ export default function App() {
   function handleShare() {
     const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
     const hintLines = [];
-    if (hintEpisode)   hintLines.push("💡 Outcome hint used");
-    if (hintNeighbors) hintLines.push("💡 Neighbors hint used");
+    if (hintEpisode)   hintLines.push("💡");
+    if (hintNeighbors) hintLines.push("💡");
     const hintBlock = hintLines.length ? "\n" + hintLines.join("\n") : "";
     const text = `Survivordle ${date} — ${won ? guesses.length : "X"}/${MAX_GUESSES} 🔥${hintBlock}\n`
       + results.map(row => row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")).join("\n");
