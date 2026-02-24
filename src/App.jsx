@@ -403,7 +403,7 @@ export default function App() {
             <div className="legend-item" key={cls}><div className={`legend-dot ${cls}`} />{lbl}</div>
           ))}
         </div>
-        <div className="arrow-note">↑ answer placed higher (lower #) &nbsp;·&nbsp; ↓ answer placed lower (higher #)</div>
+        <div className="arrow-note">↑ guess finished better than correct answer &nbsp;·&nbsp; ↓ guess finished worse than correct answer</div>
 
         {/* Search input */}
         {!gameOver && (
