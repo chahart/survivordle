@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
+import { Analytics } from "@vercel/analytics/next"
 
 // ─── GAME LOGIC ───────────────────────────────────────────────────────────────
 const JURY_TIER_RANK = { "Non-Jury": 0, "Jury": 1, "Finalist": 2, "Winner": 3 };
@@ -17,7 +18,7 @@ function compareText(g, a) {
 function evaluateGuess(guess, answer) {
   return [
     { label: "Season",    displayMain: `S${guess.season}`,           displaySub: guess.seasonName,  ...compareNumeric(guess.season,     answer.season,     THRESHOLDS.season) },
-    { label: "Place", displayMain: `#${guess.placement}`,        displaySub: null,              ...compareNumeric(guess.placement,  answer.placement,  THRESHOLDS.placement) },
+    { label: "Placement", displayMain: `#${guess.placement}`,        displaySub: null,              ...compareNumeric(guess.placement,  answer.placement,  THRESHOLDS.placement) },
     { label: "Gender",    displayMain: guess.gender,                  displaySub: null,              ...compareText(guess.gender,        answer.gender) },
     { label: "Tribe",     displayMain: guess.startingTribe,           displaySub: null,              ...compareText(guess.startingTribe, answer.startingTribe) },
     { label: "Returnee",  displayMain: guess.returnee ? "Yes" : "No", displaySub: null,              ...compareText(guess.returnee,      answer.returnee) },
@@ -30,7 +31,7 @@ const START_DATE = new Date(2026, 1, 23); // month is 0-indexed
 
 function getPuzzleNumber() {
   // Anchor to Eastern Time so everyone gets the same puzzle at the same moment.
-  // "en-CA" s YYYY-MM-DD format which is easy to parse.
+  // "en-CA" gives YYYY-MM-DD format which is easy to parse.
   const etDateStr = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
   const [y, m, d] = etDateStr.split("-").map(Number);
   const todayUTC = Date.UTC(y, m - 1, d);
@@ -141,6 +142,11 @@ const CSS = `
   .legend-dot.correct { background: #1e4d1e; border: 1px solid #3a8a3a; }
   .legend-dot.close   { background: #5a3a08; border: 1px solid #e8742a; }
   .legend-dot.wrong   { background: #151515; border: 1px solid #2a2a2a; }
+  .arrow-note {
+    text-align: center; font-size: 11px; color: #444;
+    margin-top: -12px; margin-bottom: 18px;
+    letter-spacing: 0.3px; font-style: italic;
+  }
 
   /* ── Search ── */
   .input-area { position: relative; margin-bottom: 24px; }
@@ -372,7 +378,7 @@ export default function App() {
     <>
       <style>{CSS}</style>
       <div className="app">
-
+      <Analytics/>
         {/* Header */}
         <header className="header">
           <div style={{ textAlign: "center" }}>
@@ -395,10 +401,11 @@ export default function App() {
 
         {/* Legend */}
         <div className="legend">
-          {[["correct","Exact match"],["close","Close (↑↓ direction)"],["wrong","No match"]].map(([cls,lbl]) => (
+          {[["correct","Exact match"],["close","Close"],["wrong","No match"]].map(([cls,lbl]) => (
             <div className="legend-item" key={cls}><div className={`legend-dot ${cls}`} />{lbl}</div>
           ))}
         </div>
+        <div className="arrow-note">↑ answer placed higher (lower #) &nbsp;·&nbsp; ↓ answer placed lower (higher #)</div>
 
         {/* Search input */}
         {!gameOver && (
