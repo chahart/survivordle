@@ -25,10 +25,46 @@ function evaluateGuess(guess, answer) {
   ];
 }
 
+// Survivordle #1 = February 23, 2026
+const START_DATE = new Date(2026, 1, 23); // month is 0-indexed
+
+function getPuzzleNumber() {
+  const today = new Date();
+  const todayUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  const startUTC = Date.UTC(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  return Math.floor((todayUTC - startUTC) / 86400000) + 1;
+}
+
+// Seeded pseudo-random number generator (mulberry32)
+// Same seed always produces the same sequence — deterministic shuffle
+function mulberry32(seed) {
+  return function() {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+// Fisher-Yates shuffle using a seeded RNG so order is identical for all players
+function seededShuffle(arr, seed) {
+  const a = [...arr];
+  const rand = mulberry32(seed);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Shuffle once with a fixed seed so the order never changes between deploys
+const SHUFFLE_SEED = 20260223; // Feb 23 2026 — change this to re-randomize if ever needed
+
 function getDailyAnswer(contestants) {
-  const t = new Date();
-  const seed = t.getFullYear() * 10000 + (t.getMonth() + 1) * 100 + t.getDate();
-  return contestants[seed % contestants.length];
+  const shuffled = seededShuffle(contestants, SHUFFLE_SEED);
+  const puzzleNum = getPuzzleNumber();
+  const idx = (puzzleNum - 1) % shuffled.length;
+  return shuffled[idx];
 }
 
 function isWin(result) {
@@ -282,16 +318,17 @@ export default function App() {
   function handleShare() {
     const date = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
     const hintLines = [];
-    if (hintEpisode)   hintLines.push("💡");
-    if (hintNeighbors) hintLines.push("💡");
+    if (hintEpisode)   hintLines.push("💡 Outcome hint used");
+    if (hintNeighbors) hintLines.push("💡 Neighbors hint used");
     const hintBlock = hintLines.length ? "\n" + hintLines.join("\n") : "";
-    const text = `Survivordle ${date} — ${won ? guesses.length : "X"}/${MAX_GUESSES} 🔥${hintBlock}\n`
+    const text = `Survivordle #${puzzleNum} — ${won ? guesses.length : "X"}/${MAX_GUESSES} 🔥${hintBlock}\n`
       + results.map(row => row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")).join("\n");
     navigator.clipboard?.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
 
   const remaining     = MAX_GUESSES - guesses.length;
   const hasAnyGuesses = guesses.length > 0;
+  const puzzleNum     = getPuzzleNumber();
 
   if (loading) return (
     <><style>{CSS}</style>
@@ -320,12 +357,12 @@ export default function App() {
             <div className="torch-line" />
             <div className="torch-line r" />
           </div>
-          <div className="tagline">Guess the Survivor Castaway</div>
+          <div className="tagline">Guess the Survivor Castaway &nbsp;·&nbsp; #{puzzleNum}</div>
         </header>
 
         {/* Legend */}
         <div className="legend">
-          {[["correct","Exact match"],["close","Close"],["wrong","No match"]].map(([cls,lbl]) => (
+          {[["correct","Exact match"],["close","Close (↑↓ direction)"],["wrong","No match"]].map(([cls,lbl]) => (
             <div className="legend-item" key={cls}><div className={`legend-dot ${cls}`} />{lbl}</div>
           ))}
         </div>
@@ -426,8 +463,8 @@ export default function App() {
         {gameOver && (
           <div className={`status-banner ${won ? "win" : "lose"}`}>
             {won
-              ? <>🔥 The tribe has spoken — you got it in {guesses.length}!</>
-              : <>The tribe has voted you out.</>
+              ? <>🔥 Survivordle #{puzzleNum} — got it in {guesses.length}!</>
+              : <>Survivordle #{puzzleNum} — the tribe has voted you out.</>
             }
             <span className="status-name">{answer.name}</span>
             <span className="status-sub">{answer.seasonNameFull} · {answer.result}</span>
