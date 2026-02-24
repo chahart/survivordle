@@ -17,7 +17,7 @@ function compareText(g, a) {
 function evaluateGuess(guess, answer) {
   return [
     { label: "Season",    displayMain: `S${guess.season}`,           displaySub: guess.seasonName,  ...compareNumeric(guess.season,     answer.season,     THRESHOLDS.season) },
-    { label: "Placement", displayMain: `#${guess.placement}`,        displaySub: null,              ...compareNumeric(guess.placement,  answer.placement,  THRESHOLDS.placement) },
+    { label: "Place", displayMain: `#${guess.placement}`,        displaySub: null,              ...compareNumeric(guess.placement,  answer.placement,  THRESHOLDS.placement) },
     { label: "Gender",    displayMain: guess.gender,                  displaySub: null,              ...compareText(guess.gender,        answer.gender) },
     { label: "Tribe",     displayMain: guess.startingTribe,           displaySub: null,              ...compareText(guess.startingTribe, answer.startingTribe) },
     { label: "Returnee",  displayMain: guess.returnee ? "Yes" : "No", displaySub: null,              ...compareText(guess.returnee,      answer.returnee) },
@@ -29,8 +29,11 @@ function evaluateGuess(guess, answer) {
 const START_DATE = new Date(2026, 1, 23); // month is 0-indexed
 
 function getPuzzleNumber() {
-  const today = new Date();
-  const todayUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  // Anchor to Eastern Time so everyone gets the same puzzle at the same moment.
+  // "en-CA" s YYYY-MM-DD format which is easy to parse.
+  const etDateStr = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  const [y, m, d] = etDateStr.split("-").map(Number);
+  const todayUTC = Date.UTC(y, m - 1, d);
   const startUTC = Date.UTC(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
   return Math.floor((todayUTC - startUTC) / 86400000) + 1;
 }
@@ -149,6 +152,18 @@ const CSS = `
   }
   .search-input:focus { border-color: #e8742a; }
   .search-input::placeholder { color: #444; }
+  .giveup-btn {
+    background: transparent; border: 1px solid #2e2e2e; border-radius: 8px;
+    color: #555; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500; padding: 0 18px;
+    transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+  }
+  .giveup-btn:hover { border-color: #c0392b; color: #c0392b; }
+  .search-note {
+    font-size: 11px; color: #444; text-align: center;
+    margin-top: 8px; letter-spacing: 0.3px;
+    font-style: italic;
+  }
 
   /* ── Autocomplete ── */
   .autocomplete {
@@ -262,6 +277,7 @@ export default function App() {
   const [error, setError]             = useState("");
   const [copied, setCopied]           = useState(false);
   const [hintEpisode,   setHintEpisode]   = useState(false);
+  const [gaveUp,        setGaveUp]        = useState(false);
   const [hintNeighbors, setHintNeighbors] = useState(false);
   const inputRef = useRef(null);
 
@@ -273,16 +289,28 @@ export default function App() {
       .catch(() => setLoading(false));
   }, []);
 
+  // Auto-refresh at midnight Eastern so the puzzle updates without a manual reload
+  useEffect(() => {
+    function msUntilMidnightET() {
+      const now = new Date();
+      // Get current time string in ET, then calculate next midnight
+      const etStr = now.toLocaleString("en-CA", { timeZone: "America/New_York", hour12: false });
+      // etStr is like "2026-02-23, 23:45:00" — parse hours/mins/secs
+      const timePart = etStr.split(", ")[1];
+      const [h, m, s] = timePart.split(":").map(Number);
+      const secondsUntilMidnight = (24 * 3600) - (h * 3600 + m * 60 + s);
+      return secondsUntilMidnight * 1000 + 500; // +500ms buffer
+    }
+    const timer = setTimeout(() => window.location.reload(), msUntilMidnightET());
+    return () => clearTimeout(timer);
+  }, []);
+
   // Autocomplete — derived, no state needed
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
     const q = query.toLowerCase();
     return contestants
-      .filter(c =>
-        c.name.toLowerCase().includes(q) ||
-        (c.seasonNameFull || "").toLowerCase().includes(q) ||
-        (c.startingTribe  || "").toLowerCase().includes(q)
-      )
+      .filter(c => c.name.toLowerCase().includes(q))
       .slice(0, 10);
   }, [query, contestants]);
 
@@ -313,6 +341,11 @@ export default function App() {
     } else if (e.key === "Escape") {
       setQuery("");
     }
+  }
+
+  function handleGiveUp() {
+    setGaveUp(true);
+    setGameOver(true);
   }
 
   function handleShare() {
@@ -374,13 +407,15 @@ export default function App() {
               <input
                 ref={inputRef}
                 className="search-input"
-                placeholder="Search castaway, season, or tribe…"
+                placeholder="Search by castaway name…"
                 value={query}
                 autoComplete="off"
                 onChange={e => { setQuery(e.target.value); setActiveIdx(-1); }}
                 onKeyDown={handleKeyDown}
               />
+              <button className="giveup-btn" onClick={handleGiveUp}>Give Up</button>
             </div>
+            <div className="search-note">You are guessing a castaway and their specific season appearance</div>
             {suggestions.length > 0 && (
               <div className="autocomplete">
                 {suggestions.map((c, i) => (
@@ -464,14 +499,14 @@ export default function App() {
           <div className={`status-banner ${won ? "win" : "lose"}`}>
             {won
               ? <>🔥 Survivordle #{puzzleNum} — got it in {guesses.length}!</>
+              : gaveUp
+              ? <>You gave up. Better luck tomorrow.</>
               : <>Survivordle #{puzzleNum} — the tribe has voted you out.</>
             }
             <span className="status-name">{answer.name}</span>
             <span className="status-sub">{answer.seasonNameFull} · {answer.result}</span>
             <br />
-            <button className="share-btn" onClick={handleShare}>
-              {copied ? "✓ Copied!" : "📋 Share Result"}
-            </button>
+            {!gaveUp && <button className="share-btn" onClick={handleShare}>{copied ? "✓ Copied!" : "📋 Share Result"}</button>}
           </div>
         )}
 
