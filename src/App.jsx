@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Analytics } from "@vercel/analytics/react"
 
 // ─── GAME LOGIC ───────────────────────────────────────────────────────────────
 const JURY_TIER_RANK = { "Non-Jury": 0, "Jury": 1, "Finalist": 2, "Winner": 3 };
@@ -378,7 +377,6 @@ export default function App() {
     <>
       <style>{CSS}</style>
       <div className="app">
-      <Analytics/>
         {/* Header */}
         <header className="header">
           <div style={{ textAlign: "center" }}>
