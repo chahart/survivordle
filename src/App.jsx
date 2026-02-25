@@ -83,7 +83,7 @@ const CSS = `
   .app { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
 
   /* ── Header ── */
-  .header { text-align: center; margin-bottom: 28px; }
+  .header { text-align: center; margin-bottom: 28px; position: relative; }
   .logo {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(52px, 10vw, 88px); letter-spacing: 5px; line-height: 1;
@@ -141,11 +141,7 @@ const CSS = `
   .legend-dot.correct { background: #1e4d1e; border: 1px solid #3a8a3a; }
   .legend-dot.close   { background: #5a3a08; border: 1px solid #e8742a; }
   .legend-dot.wrong   { background: #151515; border: 1px solid #2a2a2a; }
-  .arrow-note {
-    text-align: center; font-size: 11px; color: #444;
-    margin-top: -12px; margin-bottom: 18px;
-    letter-spacing: 0.3px; font-style: italic;
-  }
+
 
   /* ── Search ── */
   .input-area { position: relative; margin-bottom: 24px; }
@@ -257,6 +253,56 @@ const CSS = `
   }
   .share-btn:hover { background: #2a2a2a; color: #f0ede6; }
 
+  /* ── How to Play button ── */
+  .how-btn {
+    position: absolute; top: 24px; left: 16px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: transparent; border: 2px solid #333;
+    color: #666; cursor: pointer; font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .how-btn:hover { border-color: #e8742a; color: #e8742a; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    z-index: 1000; display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal {
+    background: #141414; border: 1px solid #2e2e2e; border-radius: 12px;
+    max-width: 520px; width: 100%; max-height: 88vh; overflow-y: auto;
+    padding: 28px 28px 24px; position: relative;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.8);
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px;
+    background: none; border: none; color: #555; cursor: pointer;
+    font-size: 18px; line-height: 1; transition: color 0.2s;
+  }
+  .modal-close:hover { color: #f0ede6; }
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 3px;
+    color: #e8742a; margin-bottom: 16px;
+  }
+  .modal-body { font-size: 13.5px; color: #aaa; line-height: 1.7; margin-bottom: 16px; }
+  .modal-body strong { color: #f0ede6; }
+  .modal-section-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: #e8742a; margin-bottom: 10px; margin-top: 20px;
+  }
+  .modal-legend { display: flex; flex-direction: column; gap: 7px; margin-bottom: 4px; }
+  .modal-legend-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #aaa; }
+  .modal-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+  .modal-dot.correct { background: #1a3d1a; border: 1px solid #3a8a3a; }
+  .modal-dot.close   { background: #3d2508; border: 1px solid #e8742a; }
+  .modal-dot.wrong   { background: #111;    border: 1px solid #2a2a2a; }
+  .modal-cols { display: flex; flex-direction: column; gap: 8px; }
+  .modal-col-row { display: flex; gap: 12px; font-size: 13px; }
+  .modal-col-name { color: #f0ede6; font-weight: 600; min-width: 80px; flex-shrink: 0; }
+  .modal-col-desc { color: #888; line-height: 1.5; }
+
   @media (max-width: 700px) {
     .col-headers, .guess-row, .empty-row { grid-template-columns: 110px repeat(6, 1fr); }
     .guess-name { font-size: 10px; padding: 6px 8px; }
@@ -283,6 +329,7 @@ export default function App() {
   const [copied, setCopied]           = useState(false);
   const [hintEpisode,   setHintEpisode]   = useState(false);
   const [gaveUp,        setGaveUp]        = useState(false);
+  const [showHow,       setShowHow]       = useState(false);
   const [hintNeighbors, setHintNeighbors] = useState(false);
   const inputRef = useRef(null);
 
@@ -377,8 +424,54 @@ export default function App() {
     <>
       <style>{CSS}</style>
       <div className="app">
+
         {/* Header */}
+        {/* How to Play modal */}
+        {showHow && (
+          <div className="modal-overlay" onClick={() => setShowHow(false)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowHow(false)}>✕</button>
+              <h2 className="modal-title">How to Play</h2>
+
+              <p className="modal-body">
+                Each day, a new Survivor castaway is chosen as the answer. You have <strong>8 guesses</strong> to identify them.
+                Because many players have appeared in multiple seasons, you are guessing a <strong>specific castaway + season appearance</strong> — not just the person.
+              </p>
+
+              <div className="modal-section-title">After each guess, each column turns:</div>
+              <div className="modal-legend">
+                <div className="modal-legend-row"><span className="modal-dot correct" />Exact match</div>
+                <div className="modal-legend-row"><span className="modal-dot close" />Close — but not exact (see thresholds below)</div>
+                <div className="modal-legend-row"><span className="modal-dot wrong" />No match</div>
+              </div>
+
+              <div className="modal-section-title">Arrow direction on 🟧 close cells:</div>
+              <p className="modal-body">
+                <strong>↑ the answer did better</strong> than your guess (e.g. you guessed 9th, answer placed higher)<br/>
+                <strong>↓ the answer did worse</strong> than your guess (e.g. you guessed 4th, answer placed lower)
+              </p>
+
+              <div className="modal-section-title">Column guide:</div>
+              <div className="modal-cols">
+                <div className="modal-col-row"><span className="modal-col-name">Season</span><span className="modal-col-desc">Season number. 🟧 if within ±2 seasons.</span></div>
+                <div className="modal-col-row"><span className="modal-col-name">Placement</span><span className="modal-col-desc">Finishing position (1 = winner). 🟧 if within ±3 places.</span></div>
+                <div className="modal-col-row"><span className="modal-col-name">Gender</span><span className="modal-col-desc">Exact match only.</span></div>
+                <div className="modal-col-row"><span className="modal-col-name">Tribe</span><span className="modal-col-desc">Starting tribe. Exact match only.</span></div>
+                <div className="modal-col-row"><span className="modal-col-name">Returnee</span><span className="modal-col-desc">Has this person played before this season? Yes or No.</span></div>
+                <div className="modal-col-row"><span className="modal-col-name">Age</span><span className="modal-col-desc">Age at time of filming. 🟧 if within ±5 years.</span></div>
+              </div>
+
+              <div className="modal-section-title">Hints (available after your first guess):</div>
+              <p className="modal-body">
+                <strong>Reveal Outcome</strong> — shows whether the answer was a pre-jury boot, juror, finalist, or winner, plus the episode and day they were eliminated.<br/><br/>
+                <strong>Reveal Voted-Out Neighbors</strong> — shows the names of the castaways eliminated just before and after the answer.
+              </p>
+            </div>
+          </div>
+        )}
+
         <header className="header">
+          <button className="how-btn" onClick={() => setShowHow(true)} title="How to Play">?</button>
           <div style={{ textAlign: "center" }}>
             <div className="logo">
               <span className="logo-surv">SURV</span>
@@ -403,7 +496,7 @@ export default function App() {
             <div className="legend-item" key={cls}><div className={`legend-dot ${cls}`} />{lbl}</div>
           ))}
         </div>
-        <div className="arrow-note">↑ guess finished better than correct answer &nbsp;·&nbsp; ↓ guess finished worse than correct answer</div>
+
 
         {/* Search input */}
         {!gameOver && (
