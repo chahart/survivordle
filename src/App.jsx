@@ -384,16 +384,48 @@ const CSS = `
   .modal-col-name { color: var(--text); font-weight: 600; min-width: 80px; flex-shrink: 0; }
   .modal-col-desc { color: var(--text2); line-height: 1.5; }
 
+  /* Desktop: show full label, hide short */
+  .col-full  { display: inline; }
+  .col-short { display: none; }
+
   @media (max-width: 700px) {
-    .col-headers, .guess-row, .empty-row { grid-template-columns: 110px repeat(6, 1fr); }
-    .guess-name { font-size: 10px; padding: 6px 8px; }
-    .guess-cell { min-height: 58px; }
-    .cell-main  { font-size: 9.5px; }
-    .col-head   { font-size: 8px; }
+    .col-headers, .guess-row, .empty-row {
+      grid-template-columns: minmax(70px, 100px) repeat(6, 1fr);
+      gap: 3px;
+    }
+    .guess-name {
+      font-size: 9px; padding: 5px 7px; min-height: 60px;
+      line-height: 1.25; white-space: normal; word-break: break-word;
+    }
+    .guess-cell { min-height: 60px; padding: 4px 2px; }
+    .cell-main  { font-size: 8.5px; }
+    .cell-sub   { font-size: 7.5px; }
+    .cell-hint  { font-size: 11px; margin-top: 2px; }
+    .col-head   { font-size: 7.5px; letter-spacing: 0px; padding: 0 1px;
+                  white-space: normal; word-break: break-word; line-height: 1.2; }
+    .col-full   { display: none; }
+    .col-short  { display: inline; }
+  }
+
+  @media (max-width: 400px) {
+    .col-headers, .guess-row, .empty-row {
+      grid-template-columns: minmax(60px, 85px) repeat(6, 1fr);
+      gap: 2px;
+    }
+    .guess-name { font-size: 8px; padding: 4px 5px; }
+    .col-head   { font-size: 7px; }
+    .cell-main  { font-size: 8px; }
   }
 `;
 
-const COLUMNS = ["Season", "Placement", "Gender", "Tribe", "Returnee", "Age"];
+const COLUMNS = [
+  { full: "Season",    short: "Season"  },
+  { full: "Placement", short: "Place"   },
+  { full: "Gender",    short: "Gender"  },
+  { full: "Tribe",     short: "Tribe"   },
+  { full: "Returnee",  short: "Returnee"},
+  { full: "Age",       short: "Age"     },
+];
 const STATUS_EMOJI = { correct: "🟩", close: "🟧", wrong: "⬛" };
 
 export default function App() {
@@ -702,7 +734,12 @@ export default function App() {
         {/* Column headers */}
         <div className="col-headers">
           <div className="col-head">Castaway</div>
-          {COLUMNS.map(c => <div key={c} className="col-head">{c}</div>)}
+          {COLUMNS.map(c => (
+            <div key={c.full} className="col-head">
+              <span className="col-full">{c.full}</span>
+              <span className="col-short">{c.short}</span>
+            </div>
+          ))}
         </div>
 
         {/* Guess grid */}
