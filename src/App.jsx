@@ -79,6 +79,44 @@ function normalize(str) {
   return (str || "").toLowerCase().replace(/\./g, "");
 }
 
+// ─── LOCALSTORAGE ─────────────────────────────────────────────────────────────
+const STORAGE_KEY = "survivordle_state";
+
+function loadStorage() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function saveStorage(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  catch {}
+}
+
+// Returns today's saved game if puzzle numbers match, else null
+function loadTodayGame(puzzleNum) {
+  const s = loadStorage();
+  if (s.puzzleNum === puzzleNum && s.gameOver) return s;
+  return null;
+}
+
+// Save completed game + update lifetime stats
+function saveCompletedGame({ puzzleNum, won, gaveUp, guessCount, emojiGrid }) {
+  const s = loadStorage();
+  const stats = s.stats || { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, dist: {} };
+
+  stats.played += 1;
+  if (won) {
+    stats.wins += 1;
+    stats.currentStreak += 1;
+    stats.maxStreak = Math.max(stats.maxStreak, stats.currentStreak);
+    stats.dist[guessCount] = (stats.dist[guessCount] || 0) + 1;
+  } else {
+    stats.currentStreak = 0;
+  }
+
+  saveStorage({ puzzleNum, won, gaveUp, guessCount, emojiGrid, gameOver: true, stats });
+}
+
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap');
@@ -384,6 +422,20 @@ const CSS = `
   .modal-col-name { color: var(--text); font-weight: 600; min-width: 80px; flex-shrink: 0; }
   .modal-col-desc { color: var(--text2); line-height: 1.5; }
 
+  /* ── Stats modal ── */
+  .stats-btn { font-size: 18px; }
+  .stat-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); width: 20px; text-align: right; flex-shrink: 0; }
+  .stat-bar-wrap { flex: 1; background: var(--bg3); border-radius: 4px; overflow: hidden; height: 24px; }
+  .stat-bar { height: 100%; background: linear-gradient(90deg, #e8742a, #b03020); border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; min-width: 28px; transition: width 0.4s ease; }
+  .stat-bar.best { background: linear-gradient(90deg, #2a8a2a, #1a5a1a); }
+  .stat-bar-count { font-size: 11px; font-weight: 700; color: #fff; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; text-align: center; }
+  .stats-grid-item { display: flex; flex-direction: column; gap: 4px; }
+  .stats-grid-num { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: #e8742a; line-height: 1; }
+  .stats-grid-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); line-height: 1.3; }
+  .stats-divider { height: 1px; background: var(--border); margin: 16px 0; }
+
   /* Desktop: show full label, hide short */
   .col-full  { display: inline; }
   .col-short { display: none; }
@@ -444,14 +496,35 @@ export default function App() {
   const [gaveUp,        setGaveUp]        = useState(false);
   const [showHow,       setShowHow]       = useState(false);
   const [lightMode,     setLightMode]     = useState(false);
+  const [showStats,     setShowStats]     = useState(false);
+  const [stats,         setStats]         = useState(() => loadStorage().stats || { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, dist: {} });
   const [hintNeighbors, setHintNeighbors] = useState(false);
   const inputRef = useRef(null);
 
-  // Load data
+  // Load data + restore saved game if same puzzle
   useEffect(() => {
     fetch("/contestants.json")
       .then(r => r.json())
-      .then(data => { setContestants(data); setAnswer(getDailyAnswer(data)); setLoading(false); })
+      .then(data => {
+        setContestants(data);
+        const todayAnswer = getDailyAnswer(data);
+        setAnswer(todayAnswer);
+        const pNum = getPuzzleNumber();
+        const saved = loadTodayGame(pNum);
+        if (saved) {
+          // Replay guess objects from saved IDs so the board renders correctly
+          // We store full guess objects in localStorage so we can restore the grid
+          if (saved.guessObjects) setGuesses(saved.guessObjects);
+          if (saved.resultObjects) setResults(saved.resultObjects);
+          setWon(saved.won || false);
+          setGaveUp(saved.gaveUp || false);
+          setGameOver(true);
+          setStats(saved.stats || { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, dist: {} });
+          // Show stats modal after brief delay on return visit
+          setTimeout(() => setShowStats(true), 600);
+        }
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -495,8 +568,22 @@ export default function App() {
     setResults(newResults);
     setQuery("");
     setActiveIdx(-1);
-    if (isWin(result))                         { setWon(true);  setGameOver(true); }
-    else if (newGuesses.length >= MAX_GUESSES) { setGameOver(true); }
+
+    const didWin  = isWin(result);
+    const didFail = !didWin && newGuesses.length >= MAX_GUESSES;
+
+    if (didWin || didFail) {
+      const emojiGrid = newResults.map(row => row.map(cell => STATUS_EMOJI[cell.status] || "⬛").join("")).join("\n");
+      const pNum = getPuzzleNumber();
+      saveCompletedGame({ puzzleNum: pNum, won: didWin, gaveUp: false, guessCount: newGuesses.length, emojiGrid });
+      // Also persist guess objects so board can be restored on return
+      const s = loadStorage();
+      saveStorage({ ...s, guessObjects: newGuesses, resultObjects: newResults });
+      const newStats = loadStorage().stats;
+      setStats(newStats);
+      if (didWin)  { setWon(true);  setGameOver(true); setTimeout(() => setShowStats(true), 1500); }
+      if (didFail) { setGameOver(true); setTimeout(() => setShowStats(true), 1500); }
+    }
   }
 
   function handleKeyDown(e) {
@@ -513,8 +600,15 @@ export default function App() {
   }
 
   function handleGiveUp() {
+    const emojiGrid = results.map(row => row.map(cell => STATUS_EMOJI[cell.status] || "⬛").join("")).join("\n");
+    const pNum = getPuzzleNumber();
+    saveCompletedGame({ puzzleNum: pNum, won: false, gaveUp: true, guessCount: guesses.length, emojiGrid });
+    const s = loadStorage();
+    saveStorage({ ...s, guessObjects: guesses, resultObjects: results });
+    setStats(loadStorage().stats);
     setGaveUp(true);
     setGameOver(true);
+    setTimeout(() => setShowStats(true), 800);
   }
 
   function handleShare() {
@@ -542,6 +636,75 @@ export default function App() {
       <style>{CSS}</style>
       <style>{lightMode ? "body{background:#f5f0e8}" : "body{background:#0a0a0a}"}</style>
       <div className={`app${lightMode ? " light" : ""}`}>
+
+        {/* Stats modal */}
+        {showStats && (() => {
+          const pct = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
+          const maxVal = Math.max(...Object.values(stats.dist), 1);
+          const bestGuess = Object.entries(stats.dist).sort((a,b) => b[1]-a[1])[0]?.[0];
+          return (
+            <div className="modal-overlay" onClick={() => setShowStats(false)}>
+              <div className="modal" onClick={e => e.stopPropagation()}>
+                <button className="modal-close" onClick={() => setShowStats(false)}>✕</button>
+                <h2 className="modal-title">My Stats</h2>
+
+                <div className="stats-grid">
+                  <div className="stats-grid-item">
+                    <span className="stats-grid-num">{stats.played}</span>
+                    <span className="stats-grid-label">Played</span>
+                  </div>
+                  <div className="stats-grid-item">
+                    <span className="stats-grid-num">{pct}%</span>
+                    <span className="stats-grid-label">Solved</span>
+                  </div>
+                  <div className="stats-grid-item">
+                    <span className="stats-grid-num">{stats.currentStreak}</span>
+                    <span className="stats-grid-label">Current Streak</span>
+                  </div>
+                  <div className="stats-grid-item">
+                    <span className="stats-grid-num">{stats.maxStreak}</span>
+                    <span className="stats-grid-label">Max Streak</span>
+                  </div>
+                </div>
+
+                {stats.wins > 0 && (
+                  <>
+                    <div className="stats-divider" />
+                    <div className="modal-section-title">Guess Distribution</div>
+                    {[1,2,3,4,5,6,7,8].map(n => {
+                      const count = stats.dist[n] || 0;
+                      const pctBar = Math.round((count / maxVal) * 100);
+                      return (
+                        <div key={n} className="stat-row">
+                          <span className="stat-label">{n}</span>
+                          <div className="stat-bar-wrap">
+                            <div
+                              className={`stat-bar${String(n) === String(bestGuess) ? " best" : ""}`}
+                              style={{ width: count > 0 ? `${Math.max(pctBar, 8)}%` : "0%" }}
+                            >
+                              {count > 0 && <span className="stat-bar-count">{count}</span>}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+
+                {gameOver && (
+                  <>
+                    <div className="stats-divider" />
+                    <div style={{textAlign:"center"}}>
+                      <button className="share-btn" onClick={() => { handleShare(); }}>
+                        {copied ? "✓ Copied!" : "📋 Share Result"}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Header */}
         {/* How to Play modal */}
@@ -591,6 +754,7 @@ export default function App() {
         <header className="header">
           <div className="header-btns">
             <button className="how-btn" onClick={() => setShowHow(true)} title="How to Play">?</button>
+            <button className="theme-btn stats-btn" onClick={() => setShowStats(true)} title="My Stats">📊</button>
             <button className="theme-btn" onClick={() => setLightMode(m => !m)} title="Toggle light/dark mode">
               {lightMode ? "🌙" : "☀️"}
             </button>
