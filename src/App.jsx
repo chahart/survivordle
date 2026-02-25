@@ -74,6 +74,16 @@ function isWin(result) {
   return result.every(c => c.status === "correct");
 }
 
+// Returns the name to display for a contestant (show name if present, else full name)
+function displayName(c) {
+  return c.showName || c.name;
+}
+
+// Normalize for search: lowercase and strip periods so M.C. matches MC
+function normalize(str) {
+  return (str || "").toLowerCase().replace(/\./g, "");
+}
+
 // ─── STYLES ───────────────────────────────────────────────────────────────────
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap');
@@ -274,6 +284,7 @@ const CSS = `
   .ac-item:hover, .ac-item.active { background: var(--ac-hover); }
   .ac-name { font-weight: 500; }
   .ac-meta { color: var(--ac-meta); font-size: 12px; white-space: nowrap; flex-shrink: 0; }
+  .ac-legal { color: var(--ac-meta); font-size: 12px; font-weight: 400; margin-left: 4px; }
 
   /* ── Hints ── */
   .hint-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -436,9 +447,12 @@ export default function App() {
   // Autocomplete — derived, no state needed
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
-    const q = query.toLowerCase();
+    const qNorm = normalize(query);
     return contestants
-      .filter(c => c.name.toLowerCase().includes(q))
+      .filter(c =>
+        normalize(c.name).includes(qNorm) ||
+        normalize(c.showName).includes(qNorm)
+      )
       .slice(0, 10);
   }, [query, contestants]);
 
@@ -604,7 +618,12 @@ export default function App() {
                     className={`ac-item${i === activeIdx ? " active" : ""}`}
                     onMouseDown={() => submitGuess(c)}
                   >
-                    <span className="ac-name">{c.name}</span>
+                    <span className="ac-name">
+                      {displayName(c)}
+                      {c.showName && c.showName !== c.name && c.showName !== c.name.split(" ")[0] &&
+                        <span className="ac-legal"> ({c.name})</span>
+                      }
+                    </span>
                     <span className="ac-meta">{c.seasonNameFull} · S{c.season}</span>
                   </div>
                 ))}
@@ -683,7 +702,7 @@ export default function App() {
               ? <>You gave up. Better luck tomorrow.</>
               : <>Survivordle #{puzzleNum} — the tribe has voted you out.</>
             }
-            <span className="status-name">{answer.name}</span>
+            <span className="status-name">{displayName(answer)}</span>
             <span className="status-sub">{answer.seasonNameFull} · {answer.result}</span>
             <br />
             {!gaveUp && <button className="share-btn" onClick={handleShare}>{copied ? "✓ Copied!" : "📋 Share Result"}</button>}
@@ -700,7 +719,7 @@ export default function App() {
         <div className="guesses">
           {guesses.map((g, i) => (
             <div key={g.id} className="guess-row">
-              <div className="guess-name">{g.name}</div>
+              <div className="guess-name">{displayName(g)}</div>
               {results[i].map((cell, j) => (
                 <div key={j} className={`guess-cell ${cell.status}`}>
                   <span className="cell-main">{cell.displayMain}</span>
