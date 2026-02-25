@@ -457,7 +457,7 @@ export default function App() {
                 <div className="modal-col-row"><span className="modal-col-name">Placement</span><span className="modal-col-desc">Finishing position (1 = winner). 🟧 if within ±3 places.</span></div>
                 <div className="modal-col-row"><span className="modal-col-name">Gender</span><span className="modal-col-desc">Exact match only.</span></div>
                 <div className="modal-col-row"><span className="modal-col-name">Tribe</span><span className="modal-col-desc">Starting tribe. Exact match only.</span></div>
-                <div className="modal-col-row"><span className="modal-col-name">Returnee</span><span className="modal-col-desc">Has this person played before this season? Yes or No.</span></div>
+                <div className="modal-col-row"><span className="modal-col-name">Returnee</span><span className="modal-col-desc">Has this person played more than once? Yes or No, even if the answer is their first season.</span></div>
                 <div className="modal-col-row"><span className="modal-col-name">Age</span><span className="modal-col-desc">Age at time of filming. 🟧 if within ±5 years.</span></div>
               </div>
 
