@@ -74,11 +74,6 @@ function isWin(result) {
   return result.every(c => c.status === "correct");
 }
 
-// Returns the name to display for a contestant (show name if present, else full name)
-function displayName(c) {
-  return c.showName || c.name;
-}
-
 // Normalize for search: lowercase and strip periods so M.C. matches MC
 function normalize(str) {
   return (str || "").toLowerCase().replace(/\./g, "");
@@ -618,12 +613,7 @@ export default function App() {
                     className={`ac-item${i === activeIdx ? " active" : ""}`}
                     onMouseDown={() => submitGuess(c)}
                   >
-                    <span className="ac-name">
-                      {displayName(c)}
-                      {c.showName && c.showName !== c.name && c.showName !== c.name.split(" ")[0] &&
-                        <span className="ac-legal"> ({c.name})</span>
-                      }
-                    </span>
+                    <span className="ac-name">{c.name}</span>
                     <span className="ac-meta">{c.seasonNameFull} · S{c.season}</span>
                   </div>
                 ))}
@@ -702,7 +692,7 @@ export default function App() {
               ? <>You gave up. Better luck tomorrow.</>
               : <>Survivordle #{puzzleNum} — the tribe has voted you out.</>
             }
-            <span className="status-name">{displayName(answer)}</span>
+            <span className="status-name">{answer.name}</span>
             <span className="status-sub">{answer.seasonNameFull} · {answer.result}</span>
             <br />
             {!gaveUp && <button className="share-btn" onClick={handleShare}>{copied ? "✓ Copied!" : "📋 Share Result"}</button>}
@@ -719,7 +709,7 @@ export default function App() {
         <div className="guesses">
           {guesses.map((g, i) => (
             <div key={g.id} className="guess-row">
-              <div className="guess-name">{displayName(g)}</div>
+              <div className="guess-name">{g.name}</div>
               {results[i].map((cell, j) => (
                 <div key={j} className={`guess-cell ${cell.status}`}>
                   <span className="cell-main">{cell.displayMain}</span>
