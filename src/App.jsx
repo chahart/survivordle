@@ -728,8 +728,8 @@ export default function App() {
 
               <div className="modal-section-title">Arrow direction on 🟧 close cells:</div>
               <p className="modal-body">
-                <strong>↑ the answer did better</strong> than your guess (e.g. you guessed 9th, answer placed higher)<br/>
-                <strong>↓ the answer did worse</strong> than your guess (e.g. you guessed 4th, answer placed lower)
+                <strong>↑ the answer did worse</strong> than your guess (e.g. you guessed 1st, answer placed higher)<br/>
+                <strong>↓ the answer did better</strong> than your guess (e.g. you guessed 13th, answer placed lower)
               </p>
 
               <div className="modal-section-title">Column guide:</div>
