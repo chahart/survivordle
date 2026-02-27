@@ -368,6 +368,7 @@ const CSS = `
   .cell-main { font-size: 11px; font-weight: 700; line-height: 1.3; word-break: break-word; }
   .cell-sub  { font-size: 9.5px; font-weight: 500; opacity: 0.8; margin-top: 2px; line-height: 1.2; word-break: break-word; }
   .cell-hint { font-size: 15px; margin-top: 3px; font-weight: 700; line-height: 1; }
+  .cell-arrow-label { font-size: 8px; font-weight: 600; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase; line-height: 1; margin-top: 1px; }
 
   .empty-row { display: grid; grid-template-columns: 160px repeat(6, 1fr); gap: 4px; }
   .empty-cell { background: var(--empty-bg); border: 1px solid var(--empty-border); border-radius: 6px; min-height: 68px; }
@@ -618,7 +619,8 @@ export default function App() {
     if (hintNeighbors) hintLines.push("💡 Neighbors hint used");
     const hintBlock = hintLines.length ? "\n" + hintLines.join("\n") : "";
     const text = `Survivordle #${puzzleNum} — ${won ? guesses.length : "X"}/${MAX_GUESSES} 🔥${hintBlock}\n`
-      + results.map(row => row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")).join("\n");
+      + results.map(row => row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")).join("\n")
+      + "\nSurvivordle.com";
     navigator.clipboard?.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
   }
 
@@ -916,6 +918,7 @@ export default function App() {
                   <span className="cell-main">{cell.displayMain}</span>
                   {cell.displaySub && <span className="cell-sub">{cell.displaySub}</span>}
                   {cell.hint && <span className="cell-hint">{cell.hint}</span>}
+                  {cell.hint && <span className="cell-arrow-label">{cell.hint === "↑" ? "worse" : "better"}</span>}
                 </div>
               ))}
             </div>
