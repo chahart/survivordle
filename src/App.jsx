@@ -918,7 +918,7 @@ export default function App() {
                   <span className="cell-main">{cell.displayMain}</span>
                   {cell.displaySub && <span className="cell-sub">{cell.displaySub}</span>}
                   {cell.hint && <span className="cell-hint">{cell.hint}</span>}
-                  {cell.hint && <span className="cell-arrow-label">{cell.hint === "↑" ? "worse" : "better"}</span>}
+                  {cell.hint && cell.label === "Placement" && <span className="cell-arrow-label">{cell.hint === "↑" ? "worse" : "better"}</span>}
                 </div>
               ))}
             </div>
