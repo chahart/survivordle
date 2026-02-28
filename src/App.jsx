@@ -469,6 +469,12 @@ const CSS = `
   .modal-col-row { display: flex; gap: 12px; font-size: 13px; }
   .modal-col-name { color: var(--text); font-weight: 600; min-width: 80px; flex-shrink: 0; }
   .modal-col-desc { color: var(--text2); line-height: 1.5; }
+  .modal-support { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 4px; }
+  .modal-support-bmc { display: flex; justify-content: center; }
+  .bmc-img { height: 40px; width: auto; border-radius: 8px; }
+  .modal-contact { font-size: 12px; color: var(--text3); text-align: center; }
+  .modal-link { color: #e8742a; text-decoration: none; font-weight: 600; }
+  .modal-link:hover { text-decoration: underline; }
 
   /* ── Stats modal ── */
   .stats-btn { font-size: 18px; }
@@ -985,6 +991,23 @@ export default function App() {
               <p className="modal-body" style={{fontSize:"11px", color:"var(--text4)"}}>
                 Survivordle collects anonymous gameplay data (castaway guessed, number of guesses, win/loss, and hint usage) to improve the game. No personal information is collected.
               </p>
+
+              <div className="stats-divider" />
+              <div className="modal-support">
+                <div className="modal-support-bmc">
+                  <a href="https://www.buymeacoffee.com/chahart" target="_blank" rel="noopener noreferrer">
+                    <img
+                      src="https://img.buymeacoffee.com/button-api/?text=Buy me a beer&emoji=🍺&slug=chahart&button_colour=ffc64d&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00"
+                      alt="Buy me a beer"
+                      className="bmc-img"
+                    />
+                  </a>
+                </div>
+                <p className="modal-contact">
+                  Questions or feedback? Email us at{" "}
+                  <a className="modal-link" href="mailto:survivordlegame@gmail.com">survivordlegame@gmail.com</a>
+                </p>
+              </div>
             </div>
           </div>
         )}
