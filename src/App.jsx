@@ -13,6 +13,9 @@ async function logSolveEvent({ puzzle, guesses, hints, won, mode }) {
     const timestamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} `
       + `${pad(h % 12 || 12)}:${pad(now.getMinutes())}${h < 12 ? "am" : "pm"}`;
 
+    // 9 = fail or give up regardless of how many guesses were made
+    const finalGuesses = won ? guesses : 9;
+
     await fetch(`${SUPABASE_URL}/rest/v1/solve_events`, {
       method: "POST",
       headers: {
@@ -21,7 +24,7 @@ async function logSolveEvent({ puzzle, guesses, hints, won, mode }) {
         "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
         "Prefer": "return=minimal",
       },
-      body: JSON.stringify({ puzzle, guesses, hints, won, mode, timestamp }),
+      body: JSON.stringify({ puzzle, guesses: finalGuesses, hints, won, mode, timestamp }),
     });
   } catch (e) {
     // Fail silently — never disrupt gameplay for analytics
