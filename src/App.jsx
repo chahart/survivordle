@@ -1,5 +1,33 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 
+// ─── SUPABASE ─────────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://ctznxbrgcijyjtnfesfp.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0em54YnJnY2lqeWp0bmZlc2ZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyOTE1MjMsImV4cCI6MjA4Nzg2NzUyM30.qEnDJSHeSqZu7L1dx6uB5MyjN8DZNwAjL5G_0GmcncM";
+
+async function logSolveEvent({ puzzle, guesses, hints, won, mode }) {
+  try {
+    // Format local timestamp as YYYY-MM-DD HH:MMam/pm
+    const now = new Date();
+    const pad = n => String(n).padStart(2, "0");
+    const h = now.getHours();
+    const timestamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} `
+      + `${pad(h % 12 || 12)}:${pad(now.getMinutes())}${h < 12 ? "am" : "pm"}`;
+
+    await fetch(`${SUPABASE_URL}/rest/v1/solve_events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Prefer": "return=minimal",
+      },
+      body: JSON.stringify({ puzzle, guesses, hints, won, mode, timestamp }),
+    });
+  } catch (e) {
+    // Fail silently — never disrupt gameplay for analytics
+  }
+}
+
 // ─── GAME LOGIC ───────────────────────────────────────────────────────────────
 const JURY_TIER_RANK = { "Non-Jury": 0, "Jury": 1, "Finalist": 2, "Winner": 3 };
 const THRESHOLDS = { season: 2, placement: 3, age: 5, juryTier: 1 };
@@ -64,10 +92,25 @@ function seededShuffle(arr, seed) {
 const SHUFFLE_SEED = 20260223; // Feb 23 2026 — change this to re-randomize if ever needed
 
 function getDailyAnswer(contestants) {
+  return getAnswerForPuzzle(contestants, getPuzzleNumber());
+}
+
+function getRandomAnswer(contestants) {
+  const idx = Math.floor(Math.random() * contestants.length);
+  return contestants[idx];
+}
+
+function getAnswerForPuzzle(contestants, puzzleNum) {
   const shuffled = seededShuffle(contestants, SHUFFLE_SEED);
-  const puzzleNum = getPuzzleNumber();
   const idx = (puzzleNum - 1) % shuffled.length;
   return shuffled[idx];
+}
+
+// Get the date string for a given puzzle number
+function getDateForPuzzle(puzzleNum) {
+  const d = new Date(START_DATE);
+  d.setDate(START_DATE.getDate() + puzzleNum - 1);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 function isWin(result) {
@@ -258,6 +301,7 @@ const CSS = `
 
   /* ── Header icon buttons ── */
   .header-btns { position: absolute; top: 0; left: 0; display: flex; gap: 8px; }
+  .header-btns-right { position: absolute; top: 0; right: 0; display: flex; gap: 8px; }
   .how-btn, .theme-btn {
     width: 34px; height: 34px; border-radius: 50%;
     background: transparent; border: 2px solid var(--how-border);
@@ -437,6 +481,38 @@ const CSS = `
   .stats-grid-label { font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); line-height: 1.3; }
   .stats-divider { height: 1px; background: var(--border); margin: 16px 0; }
 
+  /* ── Archive ── */
+  .archive-banner {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    background: var(--hint-bg); border: 1px solid var(--hint-border);
+    border-radius: 8px; padding: 10px 16px; margin-bottom: 18px;
+  }
+  .archive-banner-left { display: flex; flex-direction: column; gap: 2px; }
+  .archive-banner-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--hint-label-c); }
+  .archive-banner-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #e8742a; letter-spacing: 1px; }
+  .archive-back-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 600; padding: 6px 14px; transition: all 0.2s; white-space: nowrap;
+  }
+  .archive-back-btn:hover { border-color: #e8742a; color: #e8742a; }
+
+  .archive-list { display: flex; flex-direction: column; gap: 6px; max-height: 360px; overflow-y: auto; }
+  .archive-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg2); cursor: pointer; transition: all 0.15s; gap: 12px;
+  }
+  .archive-item:hover { border-color: #e8742a; }
+  .archive-item-left { display: flex; flex-direction: column; gap: 2px; }
+  .archive-item-num { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: #e8742a; letter-spacing: 1px; line-height: 1; }
+  .archive-item-date { font-size: 12px; color: var(--text3); }
+  .archive-play-btn {
+    background: linear-gradient(135deg, #e8742a, #b03020); border: none; border-radius: 6px;
+    color: #fff; cursor: pointer; font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px; letter-spacing: 1px; padding: 6px 16px; white-space: nowrap;
+  }
+
   /* Desktop: show full label, hide short */
   .col-full  { display: inline; }
   .col-short { display: none; }
@@ -500,6 +576,17 @@ export default function App() {
   const [showStats,     setShowStats]     = useState(false);
   const [stats,         setStats]         = useState(() => loadStorage().stats || { played: 0, wins: 0, currentStreak: 0, maxStreak: 0, dist: {} });
   const [hintNeighbors, setHintNeighbors] = useState(false);
+  const [showArchive,   setShowArchive]   = useState(false);
+  const [archivePuzzle, setArchivePuzzle] = useState(null); // null = daily, number = archive mode
+  // Archive game state — separate from daily so they never bleed into each other
+  const [archiveGuesses,  setArchiveGuesses]  = useState([]);
+  const [archiveResults,  setArchiveResults]  = useState([]);
+  const [archiveGameOver, setArchiveGameOver] = useState(false);
+  const [archiveWon,      setArchiveWon]      = useState(false);
+  const [archiveGaveUp,   setArchiveGaveUp]   = useState(false);
+  const [archiveAnswer,   setArchiveAnswer]   = useState(null);
+  const [archiveCopied,   setArchiveCopied]   = useState(false);
+  const [unlimitedMode,   setUnlimitedMode]   = useState(false);
   const inputRef = useRef(null);
 
   // Load data + restore saved game if same puzzle
@@ -528,6 +615,21 @@ export default function App() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  // Set archive answer when user picks a puzzle
+  useEffect(() => {
+    if (archivePuzzle !== null && contestants.length > 0) {
+      setArchiveAnswer(getAnswerForPuzzle(contestants, archivePuzzle));
+      setArchiveGuesses([]);
+      setArchiveResults([]);
+      setArchiveGameOver(false);
+      setArchiveWon(false);
+      setArchiveGaveUp(false);
+      setQuery("");
+      setActiveIdx(-1);
+      setError("");
+    }
+  }, [archivePuzzle, contestants]);
 
   // Auto-refresh at midnight Eastern so the puzzle updates without a manual reload
   useEffect(() => {
@@ -582,9 +684,106 @@ export default function App() {
       saveStorage({ ...s, guessObjects: newGuesses, resultObjects: newResults });
       const newStats = loadStorage().stats;
       setStats(newStats);
+      // Log anonymous solve event
+      logSolveEvent({
+        puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+        guesses: newGuesses.length,
+        hints: hintEpisode || hintNeighbors,
+        won: didWin,
+        mode: "daily",
+      });
       if (didWin)  { setWon(true);  setGameOver(true); setTimeout(() => setShowStats(true), 1500); }
       if (didFail) { setGameOver(true); setTimeout(() => setShowStats(true), 1500); }
     }
+  }
+
+  function submitArchiveGuess(c) {
+    if (!c || archiveGameOver) return;
+    if (archiveGuesses.some(g => g.id === c.id)) { setError("Already guessed that appearance!"); return; }
+    setError("");
+    const result      = evaluateGuess(c, archiveAnswer);
+    const newGuesses  = [...archiveGuesses, c];
+    const newResults  = [...archiveResults, result];
+    setArchiveGuesses(newGuesses);
+    setArchiveResults(newResults);
+    setQuery(""); setActiveIdx(-1);
+    const didWin  = isWin(result);
+    const didFail = !didWin && newGuesses.length >= MAX_GUESSES;
+    if (didWin || didFail) {
+      logSolveEvent({
+        puzzle: `${archiveAnswer.name} - ${archiveAnswer.seasonNameFull}`,
+        guesses: newGuesses.length,
+        hints: hintEpisode || hintNeighbors,
+        won: didWin,
+        mode: archivePuzzle !== null ? "archive" : "unlimited",
+      });
+    }
+    if (didWin)  { setArchiveWon(true);  setArchiveGameOver(true); }
+    if (didFail) { setArchiveGameOver(true); }
+  }
+
+  function handleArchiveGiveUp() {
+    logSolveEvent({
+      puzzle: `${archiveAnswer.name} - ${archiveAnswer.seasonNameFull}`,
+      guesses: archiveGuesses.length,
+      hints: hintEpisode || hintNeighbors,
+      won: false,
+      mode: archivePuzzle !== null ? "archive-giveup" : "unlimited-giveup",
+    });
+    setArchiveGaveUp(true);
+    setArchiveGameOver(true);
+  }
+
+  function startUnlimited() {
+    setUnlimitedMode(true);
+    setArchivePuzzle(null);
+    setArchiveAnswer(getRandomAnswer(contestants));
+    setArchiveGuesses([]);
+    setArchiveResults([]);
+    setArchiveGameOver(false);
+    setArchiveWon(false);
+    setArchiveGaveUp(false);
+    setArchiveCopied(false);
+    setHintEpisode(false);
+    setHintNeighbors(false);
+    setQuery("");
+    setError("");
+  }
+
+  function newUnlimitedGame() {
+    setArchiveAnswer(getRandomAnswer(contestants));
+    setArchiveGuesses([]);
+    setArchiveResults([]);
+    setArchiveGameOver(false);
+    setArchiveWon(false);
+    setArchiveGaveUp(false);
+    setArchiveCopied(false);
+    setHintEpisode(false);
+    setHintNeighbors(false);
+    setQuery("");
+    setError("");
+  }
+
+  function handleUnlimitedShare() {
+    const hintLines = [];
+    if (hintEpisode)   hintLines.push("💡 Outcome hint used");
+    if (hintNeighbors) hintLines.push("💡 Neighbors hint used");
+    const hintBlock = hintLines.length ? "\n" + hintLines.join("\n") : "";
+    const text = `Survivordle Unlimited — ${archiveWon ? archiveGuesses.length : "X"}/${MAX_GUESSES} 🔥${hintBlock}\n`
+      + archiveResults.map(row => row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")).join("\n")
+      + "\nSurvivordle.com";
+    navigator.clipboard?.writeText(text).then(() => { setArchiveCopied(true); setTimeout(() => setArchiveCopied(false), 2000); });
+  }
+
+  function handleArchiveShare() {
+    const hintLines = [];
+    if (hintEpisode)   hintLines.push("💡 Outcome hint used");
+    if (hintNeighbors) hintLines.push("💡 Neighbors hint used");
+    const hintBlock = hintLines.length ? "\n" + hintLines.join("\n") : "";
+    const text = `Survivordle Archive #${archivePuzzle} — ${archiveWon ? archiveGuesses.length : "X"}/${MAX_GUESSES} 🔥${hintBlock}\n`
+      + archiveResults.map(row => row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")).join("\n")
+      + "\nSurvivordle.com";
+    navigator.clipboard?.writeText(text).then(() => { setArchiveCopied(true); setTimeout(() => setArchiveCopied(false), 2000); });
   }
 
   function handleKeyDown(e) {
@@ -594,7 +793,7 @@ export default function App() {
       e.preventDefault(); setActiveIdx(i => Math.max(i - 1, -1));
     } else if (e.key === "Enter") {
       const target = activeIdx >= 0 ? suggestions[activeIdx] : suggestions[0];
-      if (target) submitGuess(target);
+      if (target) (archivePuzzle !== null || unlimitedMode) ? submitArchiveGuess(target) : submitGuess(target);
     } else if (e.key === "Escape") {
       setQuery("");
     }
@@ -607,6 +806,13 @@ export default function App() {
     const s = loadStorage();
     saveStorage({ ...s, guessObjects: guesses, resultObjects: results });
     setStats(loadStorage().stats);
+    logSolveEvent({
+      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+      guesses: guesses.length,
+      hints: hintEpisode || hintNeighbors,
+      won: false,
+      mode: "daily-giveup",
+    });
     setGaveUp(true);
     setGameOver(true);
     setTimeout(() => setShowStats(true), 800);
@@ -708,6 +914,28 @@ export default function App() {
           );
         })()}
 
+        {/* Archive list modal */}
+        {showArchive && (
+          <div className="modal-overlay" onClick={() => setShowArchive(false)}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setShowArchive(false)}>✕</button>
+              <h2 className="modal-title">Archive</h2>
+              <p className="modal-body">Play any past puzzle. Archive games don't affect your stats or streak.</p>
+              <div className="archive-list">
+                {Array.from({ length: puzzleNum - 1 }, (_, i) => puzzleNum - 1 - i).map(n => (
+                  <div key={n} className="archive-item" onClick={() => { setArchivePuzzle(n); setShowArchive(false); setHintEpisode(false); setHintNeighbors(false); }}>
+                    <div className="archive-item-left">
+                      <span className="archive-item-num">#{n}</span>
+                      <span className="archive-item-date">{getDateForPuzzle(n)}</span>
+                    </div>
+                    <button className="archive-play-btn">Play</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         {/* How to Play modal */}
         {showHow && (
@@ -749,6 +977,11 @@ export default function App() {
                 <strong>Reveal Outcome</strong> — shows whether the answer was a pre-jury boot, juror, finalist, or winner, plus the episode and day they were eliminated.<br/><br/>
                 <strong>Reveal Voted-Out Neighbors</strong> — shows the names of the castaways eliminated just before and after the answer.
               </p>
+
+              <div className="stats-divider" />
+              <p className="modal-body" style={{fontSize:"11px", color:"var(--text4)"}}>
+                Survivordle collects anonymous gameplay data (castaway guessed, number of guesses, win/loss, and hint usage) to improve the game. No personal information is collected.
+              </p>
             </div>
           </div>
         )}
@@ -760,6 +993,10 @@ export default function App() {
             <button className="theme-btn" onClick={() => setLightMode(m => !m)} title="Toggle light/dark mode">
               {lightMode ? "🌙" : "☀️"}
             </button>
+          </div>
+          <div className="header-btns-right">
+            <button className="theme-btn" onClick={startUnlimited} title="Unlimited Mode">♾️</button>
+            <button className="theme-btn" onClick={() => setShowArchive(true)} title="Archive">🗓️</button>
           </div>
           <div style={{ textAlign: "center" }}>
             <div className="logo">
@@ -787,8 +1024,32 @@ export default function App() {
         </div>
 
 
+        {/* Archive / Unlimited banner */}
+        {archivePuzzle !== null && (
+          <div className="archive-banner">
+            <div className="archive-banner-left">
+              <span className="archive-banner-label">Archive Mode</span>
+              <span className="archive-banner-title">Puzzle #{archivePuzzle} · {getDateForPuzzle(archivePuzzle)}</span>
+            </div>
+            <button className="archive-back-btn" onClick={() => { setArchivePuzzle(null); setUnlimitedMode(false); setQuery(""); setError(""); }}>
+              ← Back to Today
+            </button>
+          </div>
+        )}
+        {unlimitedMode && archivePuzzle === null && (
+          <div className="archive-banner">
+            <div className="archive-banner-left">
+              <span className="archive-banner-label">Unlimited Mode</span>
+              <span className="archive-banner-title">♾️ Play as many as you like</span>
+            </div>
+            <button className="archive-back-btn" onClick={() => { setUnlimitedMode(false); setQuery(""); setError(""); }}>
+              ← Back to Today
+            </button>
+          </div>
+        )}
+
         {/* Search input */}
-        {!gameOver && (
+        {!((archivePuzzle !== null || unlimitedMode) ? archiveGameOver : gameOver) && (
           <div className="input-area">
             <div className="search-wrap">
               <input
@@ -800,7 +1061,7 @@ export default function App() {
                 onChange={e => { setQuery(e.target.value); setActiveIdx(-1); }}
                 onKeyDown={handleKeyDown}
               />
-              <button className="giveup-btn" onClick={handleGiveUp}>Give Up</button>
+              <button className="giveup-btn" onClick={(archivePuzzle !== null || unlimitedMode) ? handleArchiveGiveUp : handleGiveUp}>Give Up</button>
             </div>
             <div className="search-note">You are guessing a castaway and their specific season appearance</div>
             {suggestions.length > 0 && (
@@ -809,7 +1070,7 @@ export default function App() {
                   <div
                     key={c.id}
                     className={`ac-item${i === activeIdx ? " active" : ""}`}
-                    onMouseDown={() => submitGuess(c)}
+                    onMouseDown={() => (archivePuzzle !== null || unlimitedMode) ? submitArchiveGuess(c) : submitGuess(c)}
                   >
                     <span className="ac-name">{c.name}</span>
                     <span className="ac-meta">{c.seasonNameFull} · S{c.season}</span>
@@ -822,16 +1083,20 @@ export default function App() {
 
         {error && <div className="error-msg">{error}</div>}
 
-        {!gameOver && (
+        {!((archivePuzzle !== null || unlimitedMode) ? archiveGameOver : gameOver) && (
           <div className="guess-counter">
-            {guesses.length === 0
-              ? `${MAX_GUESSES} guesses`
-              : `${remaining} guess${remaining !== 1 ? "es" : ""} remaining`}
+            {(() => {
+              const activeGuesses = (archivePuzzle !== null || unlimitedMode) ? archiveGuesses : guesses;
+              const activeRemaining = MAX_GUESSES - activeGuesses.length;
+              return activeGuesses.length === 0
+                ? `${MAX_GUESSES} guesses`
+                : `${activeRemaining} guess${activeRemaining !== 1 ? "es" : ""} remaining`;
+            })()}
           </div>
         )}
 
         {/* Hints — appear after first guess */}
-        {hasAnyGuesses && (
+        {((archivePuzzle !== null || unlimitedMode) ? archiveGuesses.length > 0 : hasAnyGuesses) && (
           <div className="hint-bar">
             <span className="hint-label">Hints:</span>
             <button
@@ -851,10 +1116,10 @@ export default function App() {
           </div>
         )}
 
-        {(hintEpisode || hintNeighbors) && answer && (
+        {(hintEpisode || hintNeighbors) && ((archivePuzzle !== null || unlimitedMode) ? archiveAnswer : answer) && (() => { const ha = (archivePuzzle !== null || unlimitedMode) ? archiveAnswer : answer; return (
           <div className="hint-panels">
             {hintEpisode && (() => {
-              const tier       = answer.juryTier;
+              const tier       = ha.juryTier;
               const isWinner   = tier === "Winner";
               const isFinalist = tier === "Finalist";
               const tierLabel  = isWinner || isFinalist ? "Finalist" : tier === "Jury" ? "Juror" : "Pre-Jury";
@@ -862,7 +1127,7 @@ export default function App() {
                 ? "Survived until Final Tribal Council (Won)"
                 : isFinalist
                 ? "Survived until Final Tribal Council"
-                : `Eliminated during Episode ${answer.episodeOut ?? "?"}, Day ${answer.day ?? "?"}`;
+                : `Eliminated during Episode ${ha.episodeOut ?? "?"}, Day ${ha.day ?? "?"}`;
               return (
                 <div className="hint-panel">
                   <div className="hint-panel-label">Outcome</div>
@@ -874,28 +1139,45 @@ export default function App() {
               <div className="hint-panel">
                 <div className="hint-panel-label">Voted Out Between</div>
                 <div className="hint-panel-value">
-                  {[answer.placedAfter, answer.placedBefore].filter(Boolean).join(" → ") || "No data"}
+                  {[ha.placedAfter, ha.placedBefore].filter(Boolean).join(" → ") || "No data"}
                 </div>
               </div>
             )}
           </div>
-        )}
+        ); })()}
 
         {/* Game over banner */}
-        {gameOver && (
-          <div className={`status-banner ${won ? "win" : "lose"}`}>
-            {won
-              ? <>🔥 Survivordle #{puzzleNum} — got it in {guesses.length}!</>
-              : gaveUp
-              ? <>You gave up. Better luck tomorrow.</>
-              : <>Survivordle #{puzzleNum} — the tribe has voted you out.</>
-            }
-            <span className="status-name">{answer.name}</span>
-            <span className="status-sub">{answer.seasonNameFull} · {answer.result}</span>
-            <br />
-            {!gaveUp && <button className="share-btn" onClick={handleShare}>{copied ? "✓ Copied!" : "📋 Share Result"}</button>}
-          </div>
-        )}
+        {((archivePuzzle !== null || unlimitedMode) ? archiveGameOver : gameOver) && (() => {
+          const isArchive = archivePuzzle !== null || unlimitedMode;
+          const w  = isArchive ? archiveWon      : won;
+          const gu = isArchive ? archiveGaveUp   : gaveUp;
+          const gc = isArchive ? archiveGuesses.length : guesses.length;
+          const ans = isArchive ? archiveAnswer  : answer;
+          const pn = isArchive ? archivePuzzle   : puzzleNum;
+          return (
+            <div className={`status-banner ${w ? "win" : "lose"}`}>
+              {w
+                ? <>{unlimitedMode ? "♾️" : isArchive ? "🗓️" : "🔥"} {unlimitedMode ? "Unlimited" : isArchive ? `Archive #${pn}` : `Survivordle #${pn}`} — got it in {gc}!</>
+                : gu
+                ? <>{unlimitedMode ? "Unlimited" : isArchive ? `Archive #${pn}` : `Survivordle #${pn}`} — you gave up. {isArchive || unlimitedMode ? "Try another!" : "Better luck tomorrow."}</>
+                : <>{unlimitedMode ? "Unlimited" : isArchive ? `Archive #${pn}` : `Survivordle #${pn}`} — the tribe has voted you out.</>
+              }
+              <span className="status-name">{ans.name}</span>
+              <span className="status-sub">{ans.seasonNameFull} · {ans.result}</span>
+              <br />
+              {!gu && (
+                <button className="share-btn" onClick={unlimitedMode ? handleUnlimitedShare : isArchive ? handleArchiveShare : handleShare}>
+                  {(unlimitedMode || isArchive ? archiveCopied : copied) ? "✓ Copied!" : "📋 Share Result"}
+                </button>
+              )}
+              {(unlimitedMode) && (
+                <button className="share-btn" style={{marginLeft:"8px"}} onClick={newUnlimitedGame}>
+                  🔀 New Game
+                </button>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Column headers */}
         <div className="col-headers">
@@ -909,27 +1191,36 @@ export default function App() {
         </div>
 
         {/* Guess grid */}
-        <div className="guesses">
-          {guesses.map((g, i) => (
-            <div key={g.id} className="guess-row">
-              <div className="guess-name">{g.name}</div>
-              {results[i].map((cell, j) => (
-                <div key={j} className={`guess-cell ${cell.status}`}>
-                  <span className="cell-main">{cell.displayMain}</span>
-                  {cell.displaySub && <span className="cell-sub">{cell.displaySub}</span>}
-                  {cell.hint && <span className="cell-hint">{cell.hint}</span>}
-                  {cell.hint && cell.label === "Placement" && <span className="cell-arrow-label">{cell.hint === "↑" ? "worse" : "better"}</span>}
+        {(() => {
+          const isArchive  = archivePuzzle !== null || unlimitedMode;
+          const activeGuesses = isArchive ? archiveGuesses : guesses;
+          const activeResults = isArchive ? archiveResults : results;
+          const activeGameOver = isArchive ? archiveGameOver : gameOver;
+          const activeRemaining = MAX_GUESSES - activeGuesses.length;
+          return (
+            <div className="guesses">
+              {activeGuesses.map((g, i) => (
+                <div key={g.id} className="guess-row">
+                  <div className="guess-name">{g.name}</div>
+                  {activeResults[i].map((cell, j) => (
+                    <div key={j} className={`guess-cell ${cell.status}`}>
+                      <span className="cell-main">{cell.displayMain}</span>
+                      {cell.displaySub && <span className="cell-sub">{cell.displaySub}</span>}
+                      {cell.hint && <span className="cell-hint">{cell.hint}</span>}
+                      {cell.hint && cell.label === "Placement" && <span className="cell-arrow-label">{cell.hint === "↑" ? "worse" : "better"}</span>}
+                    </div>
+                  ))}
+                </div>
+              ))}
+              {!activeGameOver && Array.from({ length: activeRemaining }).map((_, i) => (
+                <div key={i} className="empty-row">
+                  <div className="empty-cell" />
+                  {Array.from({ length: 6 }).map((_, j) => <div key={j} className="empty-cell" />)}
                 </div>
               ))}
             </div>
-          ))}
-          {!gameOver && Array.from({ length: remaining }).map((_, i) => (
-            <div key={i} className="empty-row">
-              <div className="empty-cell" />
-              {Array.from({ length: 6 }).map((_, j) => <div key={j} className="empty-cell" />)}
-            </div>
-          ))}
-        </div>
+          );
+        })()}
 
       </div>
     </>
