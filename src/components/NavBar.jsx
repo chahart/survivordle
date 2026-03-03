@@ -1,0 +1,39 @@
+import { NavLink } from "react-router-dom";
+
+export default function NavBar({ onShowHow, onShowStats, lightMode, onToggleLight, colorblind, onToggleColorblind }) {
+  return (
+    <nav className="nav">
+      <div className="nav-inner">
+        <NavLink to="/" className="nav-logo">SURV🔥VORDLE</NavLink>
+
+        <div className="nav-links">
+          <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Daily
+          </NavLink>
+          <NavLink to="/archive" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Archive
+          </NavLink>
+          <NavLink to="/unlimited" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+            Unlimited
+          </NavLink>
+        </div>
+
+        <div className="nav-right">
+          <button className="nav-btn how" onClick={onShowHow} title="How to Play">?</button>
+          <button className="nav-btn" onClick={onShowStats} title="My Stats">📊</button>
+          <button
+            className="nav-btn"
+            onClick={onToggleColorblind}
+            title="Colorblind mode"
+            style={colorblind ? { borderColor: "#4a8aff", color: "#4a8aff" } : {}}
+          >
+            👁
+          </button>
+          <button className="nav-btn" onClick={onToggleLight} title="Toggle theme">
+            {lightMode ? "🌙" : "☀️"}
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}
