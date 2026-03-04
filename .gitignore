@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 schedule.cjs
 node_modules
+.env

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import posthog from "posthog-js";
 import { getAnswerForPuzzle, getDateForPuzzle, getPuzzleNumber } from "../shared/gameLogic";
 import GameBoard from "../components/GameBoard";
 
@@ -11,6 +12,10 @@ export default function Archive({ contestants, colorblind }) {
   function selectPuzzle(n) {
     setSelectedPuzzle(n);
     setAnswer(getAnswerForPuzzle(contestants, n));
+    posthog.capture("archive_puzzle_selected", {
+      puzzle_num: n,
+      puzzle_date: getDateForPuzzle(n),
+    });
   }
 
   function backToList() {

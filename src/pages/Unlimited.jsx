@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import posthog from "posthog-js";
 import { getRandomAnswer } from "../shared/gameLogic";
 import { fetchUnlimitedStats } from "../shared/supabase";
 import GameBoard from "../components/GameBoard";
@@ -123,6 +124,7 @@ export default function Unlimited({ contestants, colorblind }) {
     setGameKey(k => k + 1);
     setGameOver(false);
     setActiveTab("play");
+    posthog.capture("unlimited_new_game_started");
   }, [contestants]);
 
   function handleComplete() {

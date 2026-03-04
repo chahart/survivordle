@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import posthog from "posthog-js";
 import { Routes, Route } from "react-router-dom";
 import CSS, { TAB_CSS } from "./shared/styles";
 import NavBar from "./components/NavBar";
@@ -41,9 +42,19 @@ export default function App() {
           onShowHow={() => setShowHow(true)}
           onShowStats={() => setShowStats(true)}
           lightMode={lightMode}
-          onToggleLight={() => setLightMode(m => !m)}
+          onToggleLight={() => {
+            setLightMode(m => {
+              posthog.capture("settings_changed", { setting: "light_mode", enabled: !m });
+              return !m;
+            });
+          }}
           colorblind={colorblind}
-          onToggleColorblind={() => setColorblind(m => !m)}
+          onToggleColorblind={() => {
+            setColorblind(m => {
+              posthog.capture("settings_changed", { setting: "colorblind_mode", enabled: !m });
+              return !m;
+            });
+          }}
         />
 
         {showHow   && <HowToPlayModal onClose={() => setShowHow(false)} />}
