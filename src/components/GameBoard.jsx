@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo } from "react";
+import posthog from "posthog-js";
 import { evaluateGuess, isWin, normalize } from "../shared/gameLogic";
 import { MAX_GUESSES, COLUMNS, STATUS_EMOJI } from "../shared/constants";
 import { logSolveEvent } from "../shared/supabase";
@@ -46,6 +47,8 @@ export default function GameBoard({
       row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")
     ).join("\n");
     const fg = firstGuess || (newGuesses[0] ? `${newGuesses[0].name} - ${newGuesses[0].seasonNameFull}` : null);
+
+    // Supabase logging
     logSolveEvent({
       puzzle: `${answer.name} - ${answer.seasonNameFull}`,
       guesses: newGuesses.length,
@@ -54,8 +57,22 @@ export default function GameBoard({
       mode: didGiveUp ? `${mode}-giveup` : mode,
       firstGuess: fg,
     });
+
+    // PostHog — game completed event
+    posthog.capture("game_completed", {
+      mode,
+      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+      puzzle_num: puzzleNum,
+      guesses: didWin ? newGuesses.length : 9,
+      won: didWin,
+      gave_up: didGiveUp,
+      hints_used: hintEpisode || hintNeighbors,
+      outcome_hint_used: hintEpisode,
+      neighbors_hint_used: hintNeighbors,
+      first_guess: fg,
+    });
+
     onComplete?.({ won: didWin, guessCount: newGuesses.length, emojiGrid, guesses: newGuesses, results: newResults, gaveUp: didGiveUp });
-    // Only show stats for daily mode — unlimited handles its own flow
     if (mode === "daily") {
       setTimeout(() => onShowStats?.(), didGiveUp ? 800 : 1500);
     }
@@ -68,10 +85,22 @@ export default function GameBoard({
     const result     = evaluateGuess(c, answer);
     const newGuesses = [...guesses, c];
     const newResults = [...results, result];
+
     // Track first guess
     if (newGuesses.length === 1) {
       setFirstGuess(`${c.name} - ${c.seasonNameFull}`);
     }
+
+    // PostHog — each individual guess
+    posthog.capture("guess_submitted", {
+      mode,
+      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+      puzzle_num: puzzleNum,
+      guess_number: newGuesses.length,
+      guess_name: `${c.name} - ${c.seasonNameFull}`,
+      was_correct: isWin(result),
+    });
+
     setGuesses(newGuesses);
     setResults(newResults);
     setQuery(""); setActiveIdx(-1);
@@ -82,8 +111,38 @@ export default function GameBoard({
   }
 
   function handleGiveUp() {
+    // PostHog — give up
+    posthog.capture("gave_up", {
+      mode,
+      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+      puzzle_num: puzzleNum,
+      guesses_made: guesses.length,
+      hints_used: hintEpisode || hintNeighbors,
+    });
     setGaveUp(true); setGameOver(true);
     finish(guesses, results, false, true);
+  }
+
+  function handleHintEpisode() {
+    setHintEpisode(true);
+    posthog.capture("hint_used", {
+      mode,
+      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+      puzzle_num: puzzleNum,
+      hint_type: "outcome",
+      guesses_at_hint: guesses.length,
+    });
+  }
+
+  function handleHintNeighbors() {
+    setHintNeighbors(true);
+    posthog.capture("hint_used", {
+      mode,
+      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+      puzzle_num: puzzleNum,
+      hint_type: "neighbors",
+      guesses_at_hint: guesses.length,
+    });
   }
 
   function handleKeyDown(e) {
@@ -111,7 +170,18 @@ export default function GameBoard({
     const text = `${label} — ${won ? guesses.length : "X"}/${MAX_GUESSES} 🔥${hintBlock}\n`
       + results.map(row => row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")).join("\n")
       + `\n${shareUrl}`;
-    navigator.clipboard?.writeText(text).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+    navigator.clipboard?.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      // PostHog — share
+      posthog.capture("result_shared", {
+        mode,
+        puzzle: `${answer.name} - ${answer.seasonNameFull}`,
+        puzzle_num: puzzleNum,
+        won,
+        guesses: guesses.length,
+      });
+    });
   }
 
   const bannerLabel = mode === "unlimited"
@@ -121,7 +191,6 @@ export default function GameBoard({
     : `Survivordle #${puzzleNum}`;
   const bannerIcon = mode === "unlimited" ? "♾️" : mode === "archive" ? "🗓️" : "🔥";
 
-  // Colorblind: swap correct cell color to blue
   const cbStyle = colorblind ? `
     .guess-cell.correct { background: #0a2a5a; border: 1px solid #4a8aff; color: #b0d0ff; }
     .legend-dot.correct { background: #0a2a5a; border: 1px solid #4a8aff; }
@@ -187,10 +256,18 @@ export default function GameBoard({
       {guesses.length > 0 && (
         <div className="hint-bar">
           <span className="hint-label">Hints:</span>
-          <button className={`hint-btn${hintEpisode ? " revealed" : ""}`} onClick={() => setHintEpisode(true)} disabled={hintEpisode}>
+          <button
+            className={`hint-btn${hintEpisode ? " revealed" : ""}`}
+            onClick={handleHintEpisode}
+            disabled={hintEpisode}
+          >
             {hintEpisode ? "✓ Outcome Revealed" : "💡 Reveal Outcome"}
           </button>
-          <button className={`hint-btn${hintNeighbors ? " revealed" : ""}`} onClick={() => setHintNeighbors(true)} disabled={hintNeighbors}>
+          <button
+            className={`hint-btn${hintNeighbors ? " revealed" : ""}`}
+            onClick={handleHintNeighbors}
+            disabled={hintNeighbors}
+          >
             {hintNeighbors ? "✓ Neighbors Revealed" : "💡 Reveal Voted-Out Neighbors"}
           </button>
         </div>
