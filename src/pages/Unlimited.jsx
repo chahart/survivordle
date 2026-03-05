@@ -1,23 +1,87 @@
 import { useState, useCallback, useEffect } from "react";
 import { getRandomAnswer } from "../shared/gameLogic";
 import { fetchUnlimitedStats } from "../shared/supabase";
+import { loadUnlimitedStats, saveUnlimitedGame } from "../shared/storage";
 import GameBoard from "../components/GameBoard";
 
-function StatsTab() {
+function PersonalStatsTab() {
+  const s        = loadUnlimitedStats();
+  const total    = s.played;
+  const wins     = s.wins;
+  const dist     = s.dist || {};
+  const solvedPct = total > 0 ? Math.round((wins / total) * 100) : 0;
+  const avgGuesses = wins > 0
+    ? (Object.entries(dist).reduce((sum, [n, c]) => sum + Number(n) * c, 0) / wins).toFixed(1)
+    : "—";
+  const maxDist  = Math.max(...Object.values(dist).map(Number), 1);
+  const bestGuess = Object.entries(dist).sort((a, b) => b[1] - a[1])[0]?.[0];
+
+  if (total === 0) return (
+    <p style={{ textAlign: "center", color: "var(--text3)", marginTop: "40px" }}>
+      No unlimited games yet — play some games first!
+    </p>
+  );
+
+  return (
+    <div>
+      <div className="stats-grid" style={{ marginTop: "8px" }}>
+        <div className="stats-grid-item">
+          <span className="stats-grid-num">{total.toLocaleString()}</span>
+          <span className="stats-grid-label">Played</span>
+        </div>
+        <div className="stats-grid-item">
+          <span className="stats-grid-num">{solvedPct}%</span>
+          <span className="stats-grid-label">Solved</span>
+        </div>
+        <div className="stats-grid-item">
+          <span className="stats-grid-num">{wins.toLocaleString()}</span>
+          <span className="stats-grid-label">Wins</span>
+        </div>
+        <div className="stats-grid-item">
+          <span className="stats-grid-num">{avgGuesses}</span>
+          <span className="stats-grid-label">Avg Guesses</span>
+        </div>
+      </div>
+
+      {wins > 0 && (
+        <>
+          <div className="stats-divider" />
+          <div className="modal-section-title" style={{ marginTop: 0 }}>Guess Distribution (Wins)</div>
+          {[1,2,3,4,5,6,7,8].map(n => {
+            const count  = Number(dist[n] || 0);
+            const pctBar = Math.round((count / maxDist) * 100);
+            return (
+              <div key={n} className="stat-row">
+                <span className="stat-label">{n}</span>
+                <div className="stat-bar-wrap">
+                  <div
+                    className={`stat-bar${String(n) === String(bestGuess) ? " best" : ""}`}
+                    style={{ width: count > 0 ? `${Math.max(pctBar, 4)}%` : "0%" }}
+                  >
+                    {count > 0 && <span className="stat-bar-count">{count}</span>}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
+    </div>
+  );
+}
+
+function GlobalStatsTab() {
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUnlimitedStats().then(d => {
-      setData(d);
-      setLoading(false);
-    });
+    fetchUnlimitedStats().then(d => { setData(d); setLoading(false); });
   }, []);
 
-  if (loading) return <div className="loading">Loading stats…</div>;
+  if (loading) return <div className="loading">Loading global stats…</div>;
   if (!data || !data.total) return (
     <p style={{ textAlign: "center", color: "var(--text3)", marginTop: "40px" }}>
-      No unlimited data yet — play some games first!
+      No data available.
     </p>
   );
 
@@ -101,6 +165,7 @@ export default function Unlimited({ contestants, colorblind }) {
   const [gameKey,   setGameKey]   = useState(0);
   const [gameOver,  setGameOver]  = useState(false);
   const [activeTab, setActiveTab] = useState("play");
+  const [statsTab,  setStatsTab]  = useState("personal"); // "personal" | "global"
 
   const newGame = useCallback(() => {
     setAnswer(getRandomAnswer(contestants));
@@ -109,7 +174,8 @@ export default function Unlimited({ contestants, colorblind }) {
     setActiveTab("play");
   }, [contestants]);
 
-  function handleComplete() {
+  function handleComplete({ won, guessCount }) {
+    saveUnlimitedGame({ won, guessCount });
     setGameOver(true);
   }
 
@@ -132,17 +198,12 @@ export default function Unlimited({ contestants, colorblind }) {
         <div className="tagline">Unlimited Mode &nbsp;·&nbsp; Play as many as you like</div>
       </header>
 
+      {/* Top tabs: Play / Stats */}
       <div className="ul-tabs">
-        <button
-          className={`ul-tab${activeTab === "play" ? " active" : ""}`}
-          onClick={() => setActiveTab("play")}
-        >
+        <button className={`ul-tab${activeTab === "play" ? " active" : ""}`} onClick={() => setActiveTab("play")}>
           ♾️ Play
         </button>
-        <button
-          className={`ul-tab${activeTab === "stats" ? " active" : ""}`}
-          onClick={() => setActiveTab("stats")}
-        >
+        <button className={`ul-tab${activeTab === "stats" ? " active" : ""}`} onClick={() => setActiveTab("stats")}>
           📊 Stats
         </button>
       </div>
@@ -160,7 +221,6 @@ export default function Unlimited({ contestants, colorblind }) {
               </button>
             )}
           </div>
-
           <GameBoard
             key={gameKey}
             answer={answer}
@@ -173,7 +233,26 @@ export default function Unlimited({ contestants, colorblind }) {
         </>
       )}
 
-      {activeTab === "stats" && <StatsTab />}
+      {activeTab === "stats" && (
+        <>
+          {/* Sub-tabs: Personal / Global */}
+          <div className="ul-subtabs">
+            <button
+              className={`ul-subtab${statsTab === "personal" ? " active" : ""}`}
+              onClick={() => setStatsTab("personal")}
+            >
+              My Stats
+            </button>
+            <button
+              className={`ul-subtab${statsTab === "global" ? " active" : ""}`}
+              onClick={() => setStatsTab("global")}
+            >
+              Global
+            </button>
+          </div>
+          {statsTab === "personal" ? <PersonalStatsTab /> : <GlobalStatsTab />}
+        </>
+      )}
     </>
   );
 }

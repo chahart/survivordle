@@ -30,3 +30,23 @@ export function saveCompletedGame({ puzzleNum, won, gaveUp, guessCount, emojiGri
   }
   saveStorage({ puzzleNum, won, gaveUp, guessCount, emojiGrid, gameOver: true, stats });
 }
+
+// ── Unlimited stats (localStorage, per device) ────────────────────────────────
+const UNLIMITED_KEY = "survivordle_unlimited_stats";
+
+export function loadUnlimitedStats() {
+  try { return JSON.parse(localStorage.getItem(UNLIMITED_KEY)) || { played: 0, wins: 0, dist: {} }; }
+  catch { return { played: 0, wins: 0, dist: {} }; }
+}
+
+export function saveUnlimitedGame({ won, guessCount }) {
+  const s = loadUnlimitedStats();
+  s.played += 1;
+  if (won) {
+    s.wins += 1;
+    s.dist[guessCount] = (s.dist[guessCount] || 0) + 1;
+  }
+  try { localStorage.setItem(UNLIMITED_KEY, JSON.stringify(s)); }
+  catch {}
+  return s;
+}

@@ -428,3 +428,19 @@ const TAB_CSS = `
 `;
 
 export { TAB_CSS };
+
+const SUBTAB_CSS = `
+  .ul-subtabs {
+    display: flex; gap: 4px; margin-bottom: 20px; margin-top: -8px;
+  }
+  .ul-subtab {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text3); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+    padding: 6px 14px; transition: all 0.2s;
+  }
+  .ul-subtab:hover { color: var(--text); border-color: var(--text3); }
+  .ul-subtab.active { background: #e8742a22; border-color: #e8742a; color: #e8742a; }
+`;
+
+export { TAB_CSS, SUBTAB_CSS };

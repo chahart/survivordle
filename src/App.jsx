@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import posthog from "posthog-js";
 import { Routes, Route } from "react-router-dom";
-import CSS, { TAB_CSS } from "./shared/styles";
+import CSS, { TAB_CSS, SUBTAB_CSS } from "./shared/styles";
 import NavBar from "./components/NavBar";
 import { HowToPlayModal, StatsModal } from "./components/Modals";
 import Daily from "./pages/Daily";
@@ -26,7 +25,7 @@ export default function App() {
   if (loading) return (
     <>
       <style>{CSS}</style>
-      <style>{TAB_CSS}</style>
+      <style>{TAB_CSS}{SUBTAB_CSS}</style>
       <div className="page"><div className="loading">🔥 Loading the tribe…</div></div>
     </>
   );
@@ -34,7 +33,7 @@ export default function App() {
   return (
     <>
       <style>{CSS}</style>
-      <style>{TAB_CSS}</style>
+      <style>{TAB_CSS}{SUBTAB_CSS}</style>
       <style>{lightMode ? "body{background:#f5f0e8}" : "body{background:#0a0a0a}"}</style>
       <div className={lightMode ? "light" : ""}>
 
@@ -42,19 +41,9 @@ export default function App() {
           onShowHow={() => setShowHow(true)}
           onShowStats={() => setShowStats(true)}
           lightMode={lightMode}
-          onToggleLight={() => {
-            setLightMode(m => {
-              posthog.capture("settings_changed", { setting: "light_mode", enabled: !m });
-              return !m;
-            });
-          }}
+          onToggleLight={() => setLightMode(m => !m)}
           colorblind={colorblind}
-          onToggleColorblind={() => {
-            setColorblind(m => {
-              posthog.capture("settings_changed", { setting: "colorblind_mode", enabled: !m });
-              return !m;
-            });
-          }}
+          onToggleColorblind={() => setColorblind(m => !m)}
         />
 
         {showHow   && <HowToPlayModal onClose={() => setShowHow(false)} />}
