@@ -34,16 +34,23 @@ export async function logSolveEvent({ puzzle, guesses, hints, won, mode, firstGu
 
 export async function fetchUnlimitedStats() {
   try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/solve_events?select=guesses,won,first_guess&mode=in.(unlimited,unlimited-giveup)`,
-      {
+    // Fetch unlimited and unlimited-giveup rows separately then combine
+    const [r1, r2] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/solve_events?select=guesses,won,first_guess&mode=eq.unlimited&limit=50000`, {
         headers: {
           "apikey": SUPABASE_ANON_KEY,
           "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
         },
-      }
-    );
-    return await res.json();
+      }),
+      fetch(`${SUPABASE_URL}/rest/v1/solve_events?select=guesses,won,first_guess&mode=eq.unlimited-giveup&limit=50000`, {
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }),
+    ]);
+    const [d1, d2] = await Promise.all([r1.json(), r2.json()]);
+    return [...(Array.isArray(d1) ? d1 : []), ...(Array.isArray(d2) ? d2 : [])];
   } catch {
     return [];
   }
