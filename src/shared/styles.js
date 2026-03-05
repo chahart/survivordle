@@ -427,8 +427,6 @@ const TAB_CSS = `
   .ul-tab.active { color: #e8742a; border-bottom-color: #e8742a; }
 `;
 
-export { TAB_CSS };
-
 const SUBTAB_CSS = `
   .ul-subtabs {
     display: flex; gap: 4px; margin-bottom: 20px; margin-top: -8px;
