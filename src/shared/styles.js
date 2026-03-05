@@ -226,6 +226,10 @@ const CSS = `
   .ac-name { font-weight: 500; }
   .ac-meta { color: var(--ac-meta); font-size: 12px; white-space: nowrap; flex-shrink: 0; }
   .ac-legal { color: var(--ac-meta); font-size: 12px; font-weight: 400; margin-left: 4px; }
+  @media (max-width: 700px) {
+    .ac-item { flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; }
+    .ac-meta { white-space: normal; font-size: 11px; }
+  }
 
   /* ── Hints ── */
   .hint-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
