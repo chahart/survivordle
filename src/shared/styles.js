@@ -427,6 +427,31 @@ const TAB_CSS = `
   .ul-tab.active { color: #e8742a; border-bottom-color: #e8742a; }
 `;
 
+const PRIVACY_CSS = `
+  .privacy-body { max-width: 680px; margin: 0 auto; }
+  .privacy-updated { font-size: 12px; color: var(--text4); margin-bottom: 28px; }
+  .privacy-section { margin-bottom: 28px; }
+  .privacy-heading {
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px;
+    color: #e8742a; margin-bottom: 10px;
+  }
+  .privacy-section p { font-size: 14px; color: var(--text2); line-height: 1.8; margin-bottom: 10px; }
+  .privacy-section strong { color: var(--text); }
+  .privacy-list {
+    list-style: none; padding: 0; margin: 10px 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .privacy-list li {
+    font-size: 14px; color: var(--text2); line-height: 1.7;
+    padding-left: 16px; position: relative;
+  }
+  .privacy-list li::before {
+    content: '·'; position: absolute; left: 0; color: #e8742a; font-weight: 700;
+  }
+  .privacy-link { color: #e8742a; text-decoration: none; }
+  .privacy-link:hover { text-decoration: underline; }
+`;
+
 const SUBTAB_CSS = `
   .ul-subtabs {
     display: flex; gap: 4px; margin-bottom: 20px; margin-top: -8px;
@@ -441,4 +466,4 @@ const SUBTAB_CSS = `
   .ul-subtab.active { background: #e8742a22; border-color: #e8742a; color: #e8742a; }
 `;
 
-export { TAB_CSS, SUBTAB_CSS };
+export { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS };
