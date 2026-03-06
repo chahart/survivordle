@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { getDailyAnswer, getPuzzleNumber, msUntilMidnightET } from "../shared/gameLogic";
-import { loadTodayGame, saveCompletedGame, loadStorage, saveStorage } from "../shared/storage";
-import { STATUS_EMOJI } from "../shared/constants";
+import { loadTodayGame, saveCompletedGame, saveMidGame, loadStorage, saveStorage } from "../shared/storage";
 import GameBoard from "../components/GameBoard";
 
 export default function Daily({ contestants, onShowStats, colorblind }) {
@@ -18,7 +17,8 @@ export default function Daily({ contestants, onShowStats, colorblind }) {
     const todaySaved = loadTodayGame(puzzleNum);
     if (todaySaved) {
       setSaved(todaySaved);
-      setTimeout(() => onShowStats?.(), 600);
+      // Only auto-show stats if the game was already finished
+      if (todaySaved.gameOver) setTimeout(() => onShowStats?.(), 600);
     }
     setLoading(false);
   }, [contestants]);
@@ -28,6 +28,10 @@ export default function Daily({ contestants, onShowStats, colorblind }) {
     const timer = setTimeout(() => window.location.reload(), msUntilMidnightET());
     return () => clearTimeout(timer);
   }, []);
+
+  function handleMidGame({ guesses, results, hintEpisode, hintNeighbors }) {
+    saveMidGame({ puzzleNum, guesses, results, hintEpisode, hintNeighbors });
+  }
 
   function handleComplete({ won, guessCount, emojiGrid, guesses, results, gaveUp }) {
     saveCompletedGame({ puzzleNum, won, gaveUp, guessCount, emojiGrid });
@@ -39,7 +43,6 @@ export default function Daily({ contestants, onShowStats, colorblind }) {
 
   return (
     <>
-      {/* Header */}
       <header className="header">
         <div className="logo">
           <span className="logo-surv">SURV</span>
@@ -58,19 +61,22 @@ export default function Daily({ contestants, onShowStats, colorblind }) {
       </header>
 
       <GameBoard
-        colorblind={colorblind}
         key={puzzleNum}
         answer={answer}
         mode="daily"
         puzzleNum={puzzleNum}
         contestants={contestants}
+        onMidGame={handleMidGame}
         onComplete={handleComplete}
         onShowStats={onShowStats}
-        initialGuesses={saved?.guessObjects  || []}
-        initialResults={saved?.resultObjects || []}
-        initialGameOver={saved?.gameOver     || false}
-        initialWon={saved?.won               || false}
-        initialGaveUp={saved?.gaveUp         || false}
+        colorblind={colorblind}
+        initialGuesses={saved?.guessObjects   || []}
+        initialResults={saved?.resultObjects  || []}
+        initialGameOver={saved?.gameOver      || false}
+        initialWon={saved?.won                || false}
+        initialGaveUp={saved?.gaveUp          || false}
+        initialHintEpisode={saved?.hintEpisode     || false}
+        initialHintNeighbors={saved?.hintNeighbors || false}
       />
     </>
   );

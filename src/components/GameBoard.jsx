@@ -17,6 +17,9 @@ export default function GameBoard({
   initialGaveUp,
   onShowStats,
   colorblind,
+  onMidGame,
+  initialHintEpisode,
+  initialHintNeighbors,
 }) {
   const [guesses,       setGuesses]       = useState(initialGuesses  || []);
   const [results,       setResults]       = useState(initialResults  || []);
@@ -27,8 +30,8 @@ export default function GameBoard({
   const [activeIdx,     setActiveIdx]     = useState(-1);
   const [error,         setError]         = useState("");
   const [copied,        setCopied]        = useState(false);
-  const [hintEpisode,   setHintEpisode]   = useState(false);
-  const [hintNeighbors, setHintNeighbors] = useState(false);
+  const [hintEpisode,   setHintEpisode]   = useState(initialHintEpisode   || false);
+  const [hintNeighbors, setHintNeighbors] = useState(initialHintNeighbors || false);
   const [firstGuess,    setFirstGuess]    = useState(null);
   const inputRef = useRef(null);
 
@@ -106,6 +109,9 @@ export default function GameBoard({
     setQuery(""); setActiveIdx(-1);
     const didWin  = isWin(result);
     const didFail = !didWin && newGuesses.length >= MAX_GUESSES;
+    if (!didWin && !didFail) {
+      onMidGame?.({ guesses: newGuesses, results: newResults, hintEpisode, hintNeighbors });
+    }
     if (didWin)  { setWon(true);  setGameOver(true); finish(newGuesses, newResults, true,  false); }
     if (didFail) {                setGameOver(true); finish(newGuesses, newResults, false, false); }
   }
@@ -125,6 +131,7 @@ export default function GameBoard({
 
   function handleHintEpisode() {
     setHintEpisode(true);
+    onMidGame?.({ guesses, results, hintEpisode: true, hintNeighbors });
     posthog.capture("hint_used", {
       mode,
       puzzle: `${answer.name} - ${answer.seasonNameFull}`,
@@ -136,6 +143,7 @@ export default function GameBoard({
 
   function handleHintNeighbors() {
     setHintNeighbors(true);
+    onMidGame?.({ guesses, results, hintEpisode, hintNeighbors: true });
     posthog.capture("hint_used", {
       mode,
       puzzle: `${answer.name} - ${answer.seasonNameFull}`,

@@ -12,8 +12,23 @@ export function saveStorage(data) {
 
 export function loadTodayGame(puzzleNum) {
   const s = loadStorage();
-  if (s.puzzleNum === puzzleNum && s.gameOver) return s;
+  // Restore completed OR in-progress game as long as it's today's puzzle
+  if (s.puzzleNum === puzzleNum) return s;
   return null;
+}
+
+export function saveMidGame({ puzzleNum, guesses, results, hintEpisode, hintNeighbors }) {
+  const s = loadStorage();
+  // Preserve existing stats and any completed game data
+  saveStorage({
+    ...s,
+    puzzleNum,
+    guessObjects: guesses,
+    resultObjects: results,
+    hintEpisode,
+    hintNeighbors,
+    gameOver: false,
+  });
 }
 
 export function saveCompletedGame({ puzzleNum, won, gaveUp, guessCount, emojiGrid }) {
