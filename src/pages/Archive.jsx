@@ -1,21 +1,22 @@
 import { useState } from "react";
-import posthog from "posthog-js";
 import { getAnswerForPuzzle, getDateForPuzzle, getPuzzleNumber } from "../shared/gameLogic";
 import GameBoard from "../components/GameBoard";
+import useSEO from "../shared/useSEO";
 
 export default function Archive({ contestants, colorblind }) {
   const [selectedPuzzle, setSelectedPuzzle] = useState(null);
   const [answer, setAnswer] = useState(null);
   const puzzleNum = getPuzzleNumber();
+  useSEO({
+    title: "Survivordle Archive — Past Daily Puzzles",
+    description: "Play any past Survivordle puzzle. Browse and replay every daily castaway puzzle from the beginning.",
+    canonical: "https://survivordle.com/archive",
+  });
   const pastPuzzles = Array.from({ length: puzzleNum - 1 }, (_, i) => puzzleNum - 1 - i);
 
   function selectPuzzle(n) {
     setSelectedPuzzle(n);
     setAnswer(getAnswerForPuzzle(contestants, n));
-    posthog.capture("archive_puzzle_selected", {
-      puzzle_num: n,
-      puzzle_date: getDateForPuzzle(n),
-    });
   }
 
   function backToList() {

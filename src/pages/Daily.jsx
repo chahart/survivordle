@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getDailyAnswer, getPuzzleNumber, msUntilMidnightET } from "../shared/gameLogic";
 import { loadTodayGame, saveCompletedGame, saveMidGame, loadStorage, saveStorage } from "../shared/storage";
 import GameBoard from "../components/GameBoard";
+import useSEO from "../shared/useSEO";
 
 export default function Daily({ contestants, onShowStats, colorblind }) {
   const [answer,  setAnswer]  = useState(null);
@@ -9,6 +10,11 @@ export default function Daily({ contestants, onShowStats, colorblind }) {
   const [saved,   setSaved]   = useState(null);
 
   const puzzleNum = getPuzzleNumber();
+  useSEO({
+    title: "Survivordle — Daily Survivor Castaway Puzzle",
+    description: "Guess today's Survivor castaway in 8 tries. A new puzzle every day — test your Survivor knowledge!",
+    canonical: "https://survivordle.com/",
+  });
 
   useEffect(() => {
     if (!contestants.length) return;

@@ -1,4 +1,10 @@
+import useSEO from "../shared/useSEO";
 export default function Privacy() {
+  useSEO({
+    title: "Privacy Policy — Survivordle",
+    description: "Survivordle privacy policy. Learn what data we collect and how it is used.",
+    canonical: "https://survivordle.com/privacy",
+  });
   return (
     <>
       <header className="header">

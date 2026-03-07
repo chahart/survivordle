@@ -3,6 +3,7 @@ import { getRandomAnswer } from "../shared/gameLogic";
 import { fetchUnlimitedStats } from "../shared/supabase";
 import { loadUnlimitedStats, saveUnlimitedGame } from "../shared/storage";
 import GameBoard from "../components/GameBoard";
+import useSEO from "../shared/useSEO";
 
 function PersonalStatsTab() {
   const s        = loadUnlimitedStats();
@@ -165,6 +166,11 @@ export default function Unlimited({ contestants, colorblind }) {
   const [gameKey,   setGameKey]   = useState(0);
   const [gameOver,  setGameOver]  = useState(false);
   const [activeTab, setActiveTab] = useState("play");
+  useSEO({
+    title: "Survivordle Unlimited — Play as Many as You Like",
+    description: "No limits — play Survivordle with random Survivor castaways as many times as you want.",
+    canonical: "https://survivordle.com/unlimited",
+  });
   const [statsTab,  setStatsTab]  = useState("personal"); // "personal" | "global"
 
   const newGame = useCallback(() => {
