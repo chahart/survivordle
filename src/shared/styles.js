@@ -470,4 +470,67 @@ const SUBTAB_CSS = `
   .ul-subtab.active { background: #e8742a22; border-color: #e8742a; color: #e8742a; }
 `;
 
-export { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS };
+
+const STATS_PAGE_CSS = `
+  .stats-page-body { max-width: 680px; margin: 0 auto; }
+  .sp-section-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: #e8742a; margin-bottom: 14px; margin-top: 4px;
+  }
+  .sp-sub-title {
+    font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 10px; margin-top: 16px;
+  }
+
+  /* Difficulty card */
+  .sp-difficulty-card {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+  }
+  .sp-diff-emoji { font-size: 32px; flex-shrink: 0; }
+  .sp-diff-right { display: flex; flex-direction: column; gap: 4px; }
+  .sp-diff-label { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 1px; line-height: 1; }
+  .sp-diff-sub   { font-size: 12px; color: var(--text3); }
+
+  /* 7-day chart */
+  .sp-chart {
+    display: flex; align-items: flex-end; gap: 8px;
+    height: 140px; padding-bottom: 0;
+  }
+  .sp-chart-col {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 4px; height: 100%;
+  }
+  .sp-chart-val   { font-size: 10px; color: var(--text3); font-weight: 600; }
+  .sp-chart-bar-wrap {
+    flex: 1; width: 100%; display: flex; align-items: flex-end;
+  }
+  .sp-chart-bar {
+    width: 100%; border-radius: 4px 4px 0 0;
+    border: 1px solid; transition: height 0.3s ease;
+  }
+  .sp-chart-label { font-size: 10px; color: var(--text3); font-weight: 600; margin-top: 4px; }
+  .sp-chart-emoji { font-size: 12px; }
+
+  /* First guesses */
+  .sp-fg-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  .sp-fg-rank { font-size: 11px; font-weight: 700; color: var(--text3); width: 24px; flex-shrink: 0; }
+  .sp-fg-bar-wrap {
+    flex: 1; background: var(--bg3); border-radius: 6px;
+    height: 32px; position: relative; overflow: hidden;
+  }
+  .sp-fg-bar {
+    position: absolute; left: 0; top: 0; bottom: 0;
+    background: linear-gradient(90deg, #e8742a33, #e8742a22);
+    border-radius: 6px; transition: width 0.4s ease;
+  }
+  .sp-fg-name {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 13px; color: var(--text2); font-weight: 500; white-space: nowrap;
+  }
+`;
+
+export { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS, STATS_PAGE_CSS };

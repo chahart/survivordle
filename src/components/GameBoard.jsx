@@ -16,6 +16,7 @@ export default function GameBoard({
   initialWon,
   initialGaveUp,
   onShowStats,
+  onNavigateStats,
   colorblind,
   onMidGame,
   initialHintEpisode,
@@ -326,6 +327,11 @@ export default function GameBoard({
           {!gaveUp && (
             <button className="share-btn" onClick={handleShare}>
               {copied ? "✓ Copied!" : "📋 Share Result"}
+            </button>
+          )}
+          {mode === "daily" && onNavigateStats && (
+            <button className="share-btn" style={{ marginLeft: "8px" }} onClick={onNavigateStats}>
+              📊 Full Site Stats
             </button>
           )}
         </div>

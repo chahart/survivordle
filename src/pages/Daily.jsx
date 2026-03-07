@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getDailyAnswer, getPuzzleNumber, msUntilMidnightET } from "../shared/gameLogic";
 import { loadTodayGame, saveCompletedGame, saveMidGame, loadStorage, saveStorage } from "../shared/storage";
 import GameBoard from "../components/GameBoard";
 import useSEO from "../shared/useSEO";
 
-export default function Daily({ contestants, onShowStats, colorblind }) {
+export default function Daily({ contestants, colorblind }) {
   const [answer,  setAnswer]  = useState(null);
   const [loading, setLoading] = useState(true);
   const [saved,   setSaved]   = useState(null);
 
+  const navigate  = useNavigate();
   const puzzleNum = getPuzzleNumber();
   useSEO({
     title: "Survivordle — Daily Survivor Castaway Puzzle",
@@ -24,7 +26,6 @@ export default function Daily({ contestants, onShowStats, colorblind }) {
     if (todaySaved) {
       setSaved(todaySaved);
       // Only auto-show stats if the game was already finished
-      if (todaySaved.gameOver) setTimeout(() => onShowStats?.(), 600);
     }
     setLoading(false);
   }, [contestants]);
@@ -73,8 +74,8 @@ export default function Daily({ contestants, onShowStats, colorblind }) {
         puzzleNum={puzzleNum}
         contestants={contestants}
         onMidGame={handleMidGame}
+        onNavigateStats={() => navigate("/stats")}
         onComplete={handleComplete}
-        onShowStats={onShowStats}
         colorblind={colorblind}
         initialGuesses={saved?.guessObjects   || []}
         initialResults={saved?.resultObjects  || []}

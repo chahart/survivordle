@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 
-export default function NavBar({ onShowHow, onShowStats, lightMode, onToggleLight, colorblind, onToggleColorblind }) {
+export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind, onToggleColorblind }) {
   return (
     <nav className="nav">
       <div className="nav-inner">
@@ -25,7 +25,12 @@ export default function NavBar({ onShowHow, onShowStats, lightMode, onToggleLigh
 
         <div className="nav-right">
           <button className="nav-btn how" onClick={onShowHow} title="How to Play">?</button>
-          <button className="nav-btn" onClick={onShowStats} title="My Stats">📊</button>
+          <NavLink to="/stats" className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
+            style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}
+            title="Stats"
+          >
+            📊
+          </NavLink>
           <button
             className="nav-btn"
             onClick={onToggleColorblind}
