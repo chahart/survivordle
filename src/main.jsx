@@ -6,11 +6,11 @@ import posthog from 'posthog-js'
 import './index.css'
 import App from './App.jsx'
 
-posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-  api_host: import.meta.env.VITE_POSTHOG_HOST,
-  capture_pageview: true,   // auto-captures every page/route change
-  capture_pageleave: true,  // captures when users navigate away
-  autocapture: true,        // captures clicks and interactions automatically
+posthog.init('YOUR_PROJECT_TOKEN', {
+  api_host: 'https://us.i.posthog.com',
+  capture_pageview: true,   // page visits only
+  capture_pageleave: false,
+  autocapture: false,       // disabled to conserve event quota
 })
 
 inject()

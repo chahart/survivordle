@@ -118,15 +118,6 @@ export default function GameBoard({
     }
 
     // PostHog — each individual guess
-    posthog.capture("guess_submitted", {
-      mode,
-      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
-      puzzle_num: puzzleNum,
-      guess_number: newGuesses.length,
-      guess_name: `${c.name} - ${c.seasonNameFull}`,
-      was_correct: isWin(result),
-    });
-
     setGuesses(newGuesses);
     setResults(newResults);
     setQuery(""); setActiveIdx(-1);
