@@ -42,8 +42,8 @@ const CSS = `
     --shadow:       rgba(0,0,0,0.8);
     --how-border:   #444;
     --how-color:    #888;
-    --giveup-border:#2e2e2e;
-    --giveup-color: #777;
+    --giveup-border:#4a1a1a;
+    --giveup-color: #c0504a;
     --nav-bg:       #0f0f0f;
     --nav-border:   #1e1e1e;
   }
@@ -87,8 +87,8 @@ const CSS = `
     --shadow:       rgba(0,0,0,0.3);
     --how-border:   #b0a898;
     --how-color:    #6a5e50;
-    --giveup-border:#c0b8ac;
-    --giveup-color: #8a7a6a;
+    --giveup-border:#e0b0b0;
+    --giveup-color: #c0392b;
     --nav-bg:       #ede8de;
     --nav-border:   #d0c8bc;
   }
@@ -199,10 +199,10 @@ const CSS = `
   .giveup-btn {
     background: transparent; border: 1px solid var(--giveup-border); border-radius: 8px;
     color: var(--giveup-color); cursor: pointer; font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight: 500; padding: 0 18px;
-    transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+    font-size: 11px; font-weight: 500; padding: 5px 12px;
+    transition: all 0.2s; white-space: nowrap; flex-shrink: 0; opacity: 0.85;
   }
-  .giveup-btn:hover { border-color: #c0392b; color: #c0392b; }
+  .giveup-btn:hover { border-color: #e05040; color: #e05040; opacity: 1; }
   .search-note {
     font-size: 11px; color: var(--search-note); text-align: center;
     margin-top: 8px; letter-spacing: 0.3px; font-style: italic;
@@ -233,6 +233,13 @@ const CSS = `
 
   /* ── Hints ── */
   .hint-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tribe-color-dot {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    margin-right: 5px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);
+    vertical-align: middle;
+  }
+  .modal-link { color: #e8742a; text-decoration: underline; }
+  .modal-link:hover { color: #ff9a50; }
   .hint-label { font-size: 12px; color: var(--hint-label); letter-spacing: 1.5px; text-transform: uppercase; }
   .hint-btn {
     background: var(--hint-btn-bg); border: 1px solid var(--hint-btn-border); border-radius: 6px;

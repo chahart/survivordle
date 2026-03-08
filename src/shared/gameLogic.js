@@ -15,7 +15,7 @@ export function evaluateGuess(guess, answer) {
     { label: "Season",    displayMain: `S${guess.season}`,           displaySub: guess.seasonName,  ...compareNumeric(guess.season,     answer.season,     THRESHOLDS.season) },
     { label: "Placement", displayMain: `#${guess.placement}`,        displaySub: null,              ...compareNumeric(guess.placement,  answer.placement,  THRESHOLDS.placement) },
     { label: "Gender",    displayMain: guess.gender,                  displaySub: null,              ...compareText(guess.gender,        answer.gender) },
-    { label: "Tribe",     displayMain: guess.startingTribe,           displaySub: null,              ...compareText(guess.startingTribe, answer.startingTribe) },
+    { label: "Tribe Color", displayMain: guess.tribe_color,           displaySub: null,              ...compareText(guess.tribe_color,   answer.tribe_color) },
     { label: "Returnee",  displayMain: guess.returnee ? "Yes" : "No", displaySub: null,              ...compareText(guess.returnee,      answer.returnee) },
     { label: "Age",       displayMain: guess.age ?? "?",              displaySub: null,              ...compareNumeric(guess.age,        answer.age,        THRESHOLDS.age) },
   ];

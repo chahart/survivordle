@@ -8,7 +8,7 @@ export const COLUMNS = [
   { full: "Season",    short: "Season"   },
   { full: "Placement", short: "Place"    },
   { full: "Gender",    short: "Gender"   },
-  { full: "Tribe",     short: "Tribe"    },
+  { full: "Tribe Color", short: "Tribe"  },
   { full: "Returnee",  short: "Returnee" },
   { full: "Age",       short: "Age"      },
 ];

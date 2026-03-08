@@ -1,5 +1,27 @@
 import { useState, useRef, useMemo } from "react";
 import posthog from "posthog-js";
+
+const TRIBE_COLOR_MAP = {
+  "Black":       "#333333",
+  "Blue/Teal":   "#1a7abf",
+  "Brown":       "#8b5e3c",
+  "Green":       "#2e8b57",
+  "Magenta":     "#c0306a",
+  "Orange":      "#e8742a",
+  "Purple":      "#7b2d8b",
+  "Red":         "#c0392b",
+  "Yellow/Gold": "#d4a017",
+};
+
+function TribeColorCell({ value }) {
+  const hex = TRIBE_COLOR_MAP[value] || "#888";
+  return (
+    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+      <span className="tribe-color-dot" style={{ background: hex }} />
+      {value}
+    </span>
+  );
+}
 import { evaluateGuess, isWin, normalize } from "../shared/gameLogic";
 import { MAX_GUESSES, COLUMNS, STATUS_EMOJI } from "../shared/constants";
 import { logSolveEvent } from "../shared/supabase";
@@ -231,7 +253,7 @@ export default function GameBoard({
               onChange={e => { setQuery(e.target.value); setActiveIdx(-1); }}
               onKeyDown={handleKeyDown}
             />
-            <button className="giveup-btn" onClick={handleGiveUp}>Give Up</button>
+
           </div>
           <div className="search-note">You are guessing a castaway and their specific season appearance</div>
           {suggestions.length > 0 && (
@@ -279,6 +301,9 @@ export default function GameBoard({
           >
             {hintNeighbors ? "✓ Neighbors Revealed" : "💡 Reveal Voted-Out Neighbors"}
           </button>
+          {!gameOver && (
+            <button className="giveup-btn" onClick={handleGiveUp}>Give Up</button>
+          )}
         </div>
       )}
 
@@ -355,7 +380,11 @@ export default function GameBoard({
             <div className="guess-name">{g.name}</div>
             {results[i].map((cell, j) => (
               <div key={j} className={`guess-cell ${cell.status}`}>
-                <span className="cell-main">{cell.displayMain}</span>
+                <span className="cell-main">
+                  {cell.label === "Tribe Color"
+                    ? <TribeColorCell value={cell.displayMain} />
+                    : cell.displayMain}
+                </span>
                 {cell.displaySub && <span className="cell-sub">{cell.displaySub}</span>}
                 {cell.hint && <span className="cell-hint">{cell.hint}</span>}
                 {cell.hint && cell.label === "Placement" && (

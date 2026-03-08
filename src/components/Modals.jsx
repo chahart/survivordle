@@ -21,24 +21,24 @@ export function HowToPlayModal({ onClose }) {
 
         <div className="modal-section-title">Arrow direction on 🟧 close cells:</div>
         <p className="modal-body">
-          <strong>↑ the answer did worse</strong> than your guess (e.g. you guessed 4th place, answer placed higher)<br/>
-          <strong>↓ the answer did better</strong> than your guess (e.g. you guessed 9th place, answer placed lower)
+          <strong>↑ the answer did worse</strong> than your guess (e.g. you guessed 4th place, answer placed lower)<br/>
+          <strong>↓ the answer did better</strong> than your guess (e.g. you guessed 9th place, answer placed higher)
         </p>
 
         <div className="modal-section-title">Column guide:</div>
         <div className="modal-cols">
-          <div className="modal-col-row"><span className="modal-col-name">Season</span><span className="modal-col-desc">Season number. 🟧 if within 2 seasons.</span></div>
-          <div className="modal-col-row"><span className="modal-col-name">Placement</span><span className="modal-col-desc">Finishing position (1 = winner). 🟧 if within 3 places.</span></div>
+          <div className="modal-col-row"><span className="modal-col-name">Season</span><span className="modal-col-desc">Season number. 🟧 if within ±2 seasons.</span></div>
+          <div className="modal-col-row"><span className="modal-col-name">Placement</span><span className="modal-col-desc">Finishing position (1 = winner). 🟧 if within ±3 places.</span></div>
           <div className="modal-col-row"><span className="modal-col-name">Gender</span><span className="modal-col-desc">Exact match only.</span></div>
-          <div className="modal-col-row"><span className="modal-col-name">Tribe</span><span className="modal-col-desc">Starting tribe</span></div>
+          <div className="modal-col-row"><span className="modal-col-name">Tribe Color</span><span className="modal-col-desc">Starting tribe color. 🟩 exact match only, no 🟧. Colors sourced from the <a href="https://survivor.fandom.com/wiki/Tribe#Tribe_Colors_Per_Season" target="_blank" rel="noopener noreferrer" className="modal-link">Survivor Wiki</a>.</span></div>
           <div className="modal-col-row"><span className="modal-col-name">Returnee</span><span className="modal-col-desc">Has this person played more than once? Yes or No, even if this is technically their first.</span></div>
-          <div className="modal-col-row"><span className="modal-col-name">Age</span><span className="modal-col-desc">Age at time of filming. 🟧 if within 5 years.</span></div>
+          <div className="modal-col-row"><span className="modal-col-name">Age</span><span className="modal-col-desc">Age at time of filming. 🟧 if within ±5 years.</span></div>
         </div>
 
-        <div className="modal-section-title">Hints:</div>
+        <div className="modal-section-title">Hints (available after your first guess):</div>
         <p className="modal-body">
-          <strong>Reveal Outcome</strong>: shows whether the answer was a pre-jury boot, juror, finalist, or winner, plus the episode and day they were eliminated.<br/><br/>
-          <strong>Reveal Voted-Out Neighbors</strong>: shows the names of the castaways eliminated just before and after the answer.
+          <strong>Reveal Outcome</strong> — shows whether the answer was a pre-jury boot, juror, finalist, or winner, plus the episode and day they were eliminated.<br/><br/>
+          <strong>Reveal Voted-Out Neighbors</strong> — shows the names of the castaways eliminated just before and after the answer.
         </p>
 
         <div className="stats-divider" />
