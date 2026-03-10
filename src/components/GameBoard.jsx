@@ -16,9 +16,9 @@ const TRIBE_COLOR_MAP = {
 function TribeColorCell({ value }) {
   const hex = TRIBE_COLOR_MAP[value] || "#888";
   return (
-    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+    <span style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "3px", width: "100%" }}>
       <span className="tribe-color-dot" style={{ background: hex }} />
-      {value}
+      <span style={{ textAlign: "center", wordBreak: "break-word", hyphens: "auto", lineHeight: 1.2 }}>{value}</span>
     </span>
   );
 }

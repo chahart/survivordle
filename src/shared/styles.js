@@ -234,9 +234,8 @@ const CSS = `
   /* ── Hints ── */
   .hint-bar { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
   .tribe-color-dot {
-    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
-    margin-right: 5px; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);
-    vertical-align: middle;
+    display: block; width: 10px; height: 10px; border-radius: 50%;
+    flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);
   }
   .modal-link { color: #e8742a; text-decoration: underline; }
   .modal-link:hover { color: #ff9a50; }
