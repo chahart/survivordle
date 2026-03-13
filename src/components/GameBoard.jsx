@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import posthog from "posthog-js";
 
 const TRIBE_COLOR_MAP = {
@@ -50,6 +50,13 @@ export default function GameBoard({
   const [won,           setWon]           = useState(initialWon      || false);
   const [gaveUp,        setGaveUp]        = useState(initialGaveUp   || false);
   const [query,         setQuery]         = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  // Debounce search input — only filter after 150ms pause in typing
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 150);
+    return () => clearTimeout(t);
+  }, [query]);
   const [activeIdx,     setActiveIdx]     = useState(-1);
   const [error,         setError]         = useState("");
   const [copied,        setCopied]        = useState(false);
@@ -59,12 +66,15 @@ export default function GameBoard({
   const inputRef = useRef(null);
 
   const suggestions = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = normalize(query);
+    if (!debouncedQuery.trim()) return [];
+    const q = normalize(debouncedQuery);
     return contestants
-      .filter(c => normalize(c.name).includes(q) || normalize(c.showName).includes(q))
+      .filter(c =>
+        (c.nameNorm || normalize(c.name)).includes(q) ||
+        (c.showNameNorm || normalize(c.showName)).includes(q)
+      )
       .slice(0, 10);
-  }, [query, contestants]);
+  }, [debouncedQuery, contestants]);
 
   const remaining = MAX_GUESSES - guesses.length;
 
@@ -120,7 +130,7 @@ export default function GameBoard({
     // PostHog — each individual guess
     setGuesses(newGuesses);
     setResults(newResults);
-    setQuery(""); setActiveIdx(-1);
+    setQuery(""); setDebouncedQuery(""); setActiveIdx(-1);
     const didWin  = isWin(result);
     const didFail = !didWin && newGuesses.length >= MAX_GUESSES;
     if (!didWin && !didFail) {
