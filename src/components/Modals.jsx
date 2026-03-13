@@ -49,13 +49,6 @@ export function HowToPlayModal({ onClose }) {
         <div className="stats-divider" />
         <div className="modal-support">
           <div className="modal-support-bmc">
-            <a href="https://www.buymeacoffee.com/chahart" target="_blank" rel="noopener noreferrer">
-              <img
-                src="https://img.buymeacoffee.com/button-api/?text=Buy me a beer&emoji=🍺&slug=chahart&button_colour=ffc64d&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=FFDD00"
-                alt="Buy me a beer"
-                className="bmc-img"
-              />
-            </a>
           </div>
           <p className="modal-contact">
             Questions or feedback?{" "}

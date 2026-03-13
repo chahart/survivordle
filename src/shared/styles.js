@@ -539,4 +539,50 @@ const STATS_PAGE_CSS = `
   }
 `;
 
-export { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS, STATS_PAGE_CSS };
+
+const ABOUT_CSS = `
+  .about-page {
+    max-width: 600px; margin: 0 auto; padding: 8px 0 48px;
+  }
+  .about-section { margin-bottom: 4px; }
+  .about-heading {
+    font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 2px;
+    color: #e8742a; margin: 0 0 12px; text-transform: uppercase;
+  }
+  .about-body {
+    font-size: 14px; line-height: 1.75; color: var(--text2);
+    margin: 0 0 10px;
+  }
+  .about-divider {
+    border: none; border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+  .about-stats {
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .about-stat {
+    flex: 1; min-width: 120px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .about-stat-num {
+    font-family: 'Bebas Neue', sans-serif; font-size: 28px;
+    color: #e8742a; letter-spacing: 1px; line-height: 1;
+  }
+  .about-stat-label {
+    font-size: 11px; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 1.5px; text-align: center;
+  }
+  .about-links {
+    display: flex; flex-direction: column; gap: 10px; margin-top: 4px;
+  }
+  .about-link {
+    font-size: 14px; color: var(--text2);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    transition: color 0.2s;
+  }
+  .about-link:hover { color: #e8742a; }
+`;
+
+export { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS, STATS_PAGE_CSS, ABOUT_CSS };

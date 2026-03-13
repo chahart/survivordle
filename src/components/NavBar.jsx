@@ -16,6 +16,11 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
           <NavLink to="/unlimited" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
             Unlimited
           </NavLink>
+          <NavLink to="/about" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
+            style={{ fontSize: "11px", opacity: 0.6 }}
+          >
+            About
+          </NavLink>
           <NavLink to="/privacy" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
             style={{ marginLeft: "auto", fontSize: "11px", opacity: 0.6 }}
           >
