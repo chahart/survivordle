@@ -3,34 +3,13 @@ import { NavLink } from "react-router-dom";
 export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind, onToggleColorblind }) {
   return (
     <nav className="nav">
-      <div className="nav-inner">
+      {/* Row 1: Logo + utility buttons */}
+      <div className="nav-row1">
         <NavLink to="/" className="nav-logo">SURV🔥VORDLE</NavLink>
-
-        <div className="nav-links">
-          <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
-            Daily
-          </NavLink>
-          <NavLink to="/archive" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
-            Archive
-          </NavLink>
-          <NavLink to="/unlimited" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
-            Unlimited
-          </NavLink>
-          <NavLink to="/about" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            style={{ marginLeft: "auto", fontSize: "11px", opacity: 0.6 }}
-          >
-            About
-          </NavLink>
-          <NavLink to="/privacy" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
-            style={{ fontSize: "11px", opacity: 0.6 }}
-          >
-            Privacy
-          </NavLink>
-        </div>
-
         <div className="nav-right">
           <button className="nav-btn how" onClick={onShowHow} title="How to Play">?</button>
-          <NavLink to="/stats" className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
+          <NavLink to="/stats"
+            className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
             style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}
             title="Stats"
           >
@@ -47,6 +26,29 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
           <button className="nav-btn" onClick={onToggleLight} title="Toggle theme">
             {lightMode ? "🌙" : "☀️"}
           </button>
+        </div>
+      </div>
+
+      {/* Row 2: Page links */}
+      <div className="nav-row2">
+        <div className="nav-tabs">
+          <NavLink to="/" end className={({ isActive }) => `nav-tab${isActive ? " active" : ""}`}>
+            Daily
+          </NavLink>
+          <NavLink to="/archive" className={({ isActive }) => `nav-tab${isActive ? " active" : ""}`}>
+            Archive
+          </NavLink>
+          <NavLink to="/unlimited" className={({ isActive }) => `nav-tab${isActive ? " active" : ""}`}>
+            Unlimited
+          </NavLink>
+        </div>
+        <div className="nav-secondary">
+          <NavLink to="/about" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
+            About
+          </NavLink>
+          <NavLink to="/privacy" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
+            Privacy
+          </NavLink>
         </div>
       </div>
     </nav>
