@@ -1,9 +1,28 @@
-import { NavLink } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 
 export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind, onToggleColorblind }) {
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef(null);
+  const location = useLocation();
+
+  // Close dropdown on route change
+  useEffect(() => { setMoreOpen(false); }, [location]);
+
+  // Close dropdown on outside tap
+  useEffect(() => {
+    function handleClick(e) {
+      if (moreRef.current && !moreRef.current.contains(e.target)) {
+        setMoreOpen(false);
+      }
+    }
+    if (moreOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [moreOpen]);
+
   return (
     <nav className="nav">
-      {/* Row 1: Logo + utility buttons */}
+      {/* Row 1: logo + utility buttons */}
       <div className="nav-row1">
         <NavLink to="/" className="nav-logo">SURV🔥VORDLE</NavLink>
         <div className="nav-right">
@@ -29,7 +48,7 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
         </div>
       </div>
 
-      {/* Row 2: Page links */}
+      {/* Row 2: page tabs + secondary */}
       <div className="nav-row2">
         <div className="nav-tabs">
           <NavLink to="/" end className={({ isActive }) => `nav-tab${isActive ? " active" : ""}`}>
@@ -42,6 +61,8 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
             Unlimited
           </NavLink>
         </div>
+
+        {/* Desktop: show About + Privacy inline */}
         <div className="nav-secondary">
           <NavLink to="/about" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
             About
@@ -49,6 +70,26 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
           <NavLink to="/privacy" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
             Privacy
           </NavLink>
+        </div>
+
+        {/* Mobile only: More dropdown */}
+        <div className="nav-more-wrap" ref={moreRef}>
+          <button
+            className={`nav-more-btn${moreOpen ? " open" : ""}`}
+            onClick={() => setMoreOpen(o => !o)}
+          >
+            More {moreOpen ? "▲" : "▼"}
+          </button>
+          {moreOpen && (
+            <div className="nav-more-dropdown">
+              <NavLink to="/about" className={({ isActive }) => `nav-more-item${isActive ? " active" : ""}`}>
+                About
+              </NavLink>
+              <NavLink to="/privacy" className={({ isActive }) => `nav-more-item${isActive ? " active" : ""}`}>
+                Privacy
+              </NavLink>
+            </div>
+          )}
         </div>
       </div>
     </nav>

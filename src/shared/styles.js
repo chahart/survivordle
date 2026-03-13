@@ -144,8 +144,36 @@ const CSS = `
   .nav-secondary-link:hover { opacity: 1; }
   .nav-secondary-link.active { opacity: 1; color: #e8742a; }
 
+  /* More dropdown — mobile only */
+  .nav-more-wrap { display: none; position: relative; margin-left: auto; }
+  .nav-more-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--text3); padding: 8px 10px; transition: color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-more-btn:hover, .nav-more-btn.open { color: #e8742a; }
+  .nav-more-dropdown {
+    position: absolute; right: 0; top: calc(100% + 4px);
+    background: var(--nav-bg); border: 1px solid var(--nav-border);
+    border-radius: 8px; min-width: 120px; z-index: 200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
+  .nav-more-item {
+    display: block; padding: 12px 16px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+    color: var(--text3); text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    border-bottom: 1px solid var(--nav-border);
+  }
+  .nav-more-item:last-child { border-bottom: none; }
+  .nav-more-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-more-item.active { color: #e8742a; }
+
   @media (max-width: 500px) {
-    .nav-secondary { display: none; }
+    .nav-secondary  { display: none; }
+    .nav-more-wrap  { display: block; }
     .nav-tab { padding: 8px 12px; font-size: 11px; }
   }
 
