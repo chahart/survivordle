@@ -622,6 +622,14 @@ const ABOUT_CSS = `
     font-size: 11px; color: var(--text3);
     text-transform: uppercase; letter-spacing: 1.5px; text-align: center;
   }
+  .about-list {
+    margin: 0 0 12px 0; padding-left: 20px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .about-list li {
+    font-size: 14px; line-height: 1.7; color: var(--text2);
+  }
+  .about-list li strong { color: var(--text); }
   .about-links {
     display: flex; flex-direction: column; gap: 10px; margin-top: 4px;
   }
