@@ -25,3 +25,5 @@ dist-ssr
 schedule.cjs
 node_modules
 .env
+first_guess_scores.json
+score_first_guesses.cjs
