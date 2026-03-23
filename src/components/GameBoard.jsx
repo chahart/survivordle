@@ -360,6 +360,11 @@ export default function GameBoard({
               📊 Full Site Stats
             </button>
           )}
+          <br />
+          <br />
+          <a href="https://x.com/Survivordle" target="_blank" rel="noopener noreferrer" className="about-link">
+              Follow us on 𝕏 @Survivordle
+            </a>
         </div>
       )}
 
