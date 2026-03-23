@@ -92,7 +92,7 @@ export default function About() {
               ✉️ survivordlegame@gmail.com
             </a>
             <a href="https://x.com/Survivordle" target="_blank" rel="noopener noreferrer" className="about-link">
-              𝕏 @xCharlieHart
+              𝕏 @Survivordle
             </a>
             <a href="https://instagram.com/charl13hart" target="_blank" rel="noopener noreferrer" className="about-link">
               📷 @charl13hart
