@@ -75,7 +75,8 @@ export default function About() {
         <section className="about-section">
           <h2 className="about-heading">The Creator</h2>
           <p className="about-body">
-            Hey! I'm Charlie Hart, the creator of Survivordle. I built this game because I love Survivor and wanted to create something fun and challenging for the community. What started as a side project has grown into something I'm really proud of, and I'm grateful to everyone who plays, shares, and sends feedback.
+            Hey! I'm Charlie Hart, the creator of Survivordle. I built this game because I love Survivor and wanted to create something fun and challenging for the community. 
+            What started as a side project has grown into something I'm really proud of, and I'm grateful to everyone who plays, shares, and sends feedback.
           </p>
         </section>
 
@@ -90,7 +91,7 @@ export default function About() {
             <a href="mailto:survivordlegame@gmail.com" className="about-link">
               ✉️ survivordlegame@gmail.com
             </a>
-            <a href="https://x.com/xCharlieHart" target="_blank" rel="noopener noreferrer" className="about-link">
+            <a href="https://x.com/Survivordle" target="_blank" rel="noopener noreferrer" className="about-link">
               𝕏 @xCharlieHart
             </a>
             <a href="https://instagram.com/charl13hart" target="_blank" rel="noopener noreferrer" className="about-link">
