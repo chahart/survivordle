@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo} from "react";
 import posthog from "posthog-js";
 
 const TRIBE_COLOR_MAP = {

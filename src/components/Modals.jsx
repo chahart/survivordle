@@ -32,7 +32,7 @@ export function HowToPlayModal({ onClose }) {
           <div className="modal-col-row"><span className="modal-col-name">Gender</span><span className="modal-col-desc">Exact match only.</span></div>
           <div className="modal-col-row"><span className="modal-col-name">Tribe Color</span><span className="modal-col-desc">Starting tribe color. 🟩 exact match only, no 🟧. Colors sourced from the <a href="https://survivor.fandom.com/wiki/Tribe#Tribe_Colors_Per_Season" target="_blank" rel="noopener noreferrer" className="modal-link">Survivor Wiki</a>.</span></div>
           <div className="modal-col-row"><span className="modal-col-name">Returnee</span><span className="modal-col-desc">Has this person played more than once? Yes or No, even if this is technically their first.</span></div>
-          <div className="modal-col-row"><span className="modal-col-name">Age</span><span className="modal-col-desc">Age at time of filming. 🟧 if within ±5 years.</span></div>
+          <div className="modal-col-row"><span className="modal-col-name">Age</span><span className="modal-col-desc">Age when the season aired. 🟧 if within ±5 years.</span></div>
         </div>
 
         <div className="modal-section-title">Hints (available after your first guess):</div>
