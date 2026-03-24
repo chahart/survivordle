@@ -109,6 +109,7 @@ export default function GameBoard({
       outcome_hint_used: hintEpisode,
       neighbors_hint_used: hintNeighbors,
       first_guess: fg,
+      second_guess: sg,
     });
 
     onComplete?.({ won: didWin, guessCount: newGuesses.length, emojiGrid, guesses: newGuesses, results: newResults, gaveUp: didGiveUp });
