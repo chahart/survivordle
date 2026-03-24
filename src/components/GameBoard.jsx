@@ -63,6 +63,7 @@ export default function GameBoard({
   const [hintEpisode,   setHintEpisode]   = useState(initialHintEpisode   || false);
   const [hintNeighbors, setHintNeighbors] = useState(initialHintNeighbors || false);
   const [firstGuess,    setFirstGuess]    = useState(null);
+  const [secondGuess,  setSecondGuess]   = useState(null);
   const inputRef = useRef(null);
 
   const suggestions = useMemo(() => {
@@ -83,6 +84,7 @@ export default function GameBoard({
       row.map(c => STATUS_EMOJI[c.status] || "⬛").join("")
     ).join("\n");
     const fg = firstGuess || (newGuesses[0] ? `${newGuesses[0].name} - ${newGuesses[0].seasonNameFull}` : null);
+    const sg = secondGuess || (newGuesses[1] ? `${newGuesses[1].name} - ${newGuesses[1].seasonNameFull}` : null);
 
     // Supabase logging
     logSolveEvent({
@@ -92,6 +94,7 @@ export default function GameBoard({
       won: didWin,
       mode: didGiveUp ? `${mode}-giveup` : mode,
       firstGuess: fg,
+      secondGuess: sg,
     });
 
     // PostHog — game completed event
@@ -126,6 +129,9 @@ export default function GameBoard({
     if (newGuesses.length === 1) {
       setFirstGuess(`${c.name} - ${c.seasonNameFull}`);
     }
+    if (newGuesses.length === 2) {
+  setSecondGuess(`${c.name} - ${c.seasonNameFull}`);
+  }
 
     // PostHog — each individual guess
     setGuesses(newGuesses);

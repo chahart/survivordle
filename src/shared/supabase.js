@@ -25,6 +25,7 @@ export async function logSolveEvent({ puzzle, guesses, hints, won, mode, firstGu
         mode,
         timestamp,
         first_guess: firstGuess || null,
+        second_guess: secondGuess || null,
       }),
     });
   } catch {
