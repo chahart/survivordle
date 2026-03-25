@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import useSEO from "../shared/useSEO";
 
 export default function About() {
@@ -78,6 +79,20 @@ export default function About() {
             Hey! I'm Charlie Hart, the creator of Survivordle. I built this game because I love Survivor and wanted to create something fun and challenging for the community. 
             What started as a side project has grown into something I'm really proud of, and I'm grateful to everyone who plays, shares, and sends feedback.
           </p>
+        </section>
+
+        <div className="about-divider" />
+
+        <section className="about-section">
+          <h2 className="about-heading">From the Blog</h2>
+          <p className="about-body">
+            I write about building Survivordle, the data behind the game, and what's coming next.
+          </p>
+          <div className="about-links">
+            <Link to="/blog/how-i-built-survivordle" className="about-link">
+              📝 How I Built Survivordle: A Daily Survivor Castaway Guessing Game
+            </Link>
+          </div>
         </section>
 
         <div className="about-divider" />

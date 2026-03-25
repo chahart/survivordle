@@ -11,6 +11,8 @@ import About from "./pages/About";
 import Stats from "./pages/Stats";
 import HowToPlay from "./pages/HowToPlay";
 import FAQ from "./pages/FAQ";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 export default function App() {
   const [contestants,  setContestants]  = useState([]);
@@ -57,6 +59,8 @@ export default function App() {
             <Route path="/about"       element={<About />} />
             <Route path="/how-to-play" element={<HowToPlay />} />
             <Route path="/faq"         element={<FAQ />} />
+            <Route path="/blog"        element={<Blog />} />
+            <Route path="/blog/:slug"  element={<BlogPost />} />
           </Routes>
         </div>
 

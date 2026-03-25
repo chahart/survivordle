@@ -678,6 +678,14 @@ const FOOTER_CSS = `
   .footer-bmc:hover {
     color: #e8742a; border-color: #e8742a44;
   }
+  .footer-nav-links {
+    display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap;
+  }
+  .footer-nav-link {
+    font-size: 11px; color: var(--text4); text-decoration: none;
+    transition: color 0.2s; letter-spacing: 0.3px;
+  }
+  .footer-nav-link:hover { color: #e8742a; }
   @media (max-width: 500px) {
     .site-footer-inner { flex-direction: column; align-items: flex-start; }
     .footer-right { gap: 4px; }
