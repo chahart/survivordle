@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
-export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind, onToggleColorblind }) {
+export default function NavBar({ lightMode, onToggleLight, colorblind, onToggleColorblind }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
   const location = useLocation();
@@ -26,7 +26,14 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
       <div className="nav-row1">
         <NavLink to="/" className="nav-logo">SURV🔥VORDLE</NavLink>
         <div className="nav-right">
-          <button className="nav-btn how" onClick={onShowHow} title="How to Play">?</button>
+          <NavLink
+            to="/how-to-play"
+            className={({ isActive }) => `nav-btn how${isActive ? " active" : ""}`}
+            style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center" }}
+            title="How to Play"
+          >
+            ?
+          </NavLink>
           <NavLink to="/stats"
             className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
             style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}
@@ -62,8 +69,11 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
           </NavLink>
         </div>
 
-        {/* Desktop: show About + Privacy inline */}
+        {/* Desktop: show How to Play + About + Privacy inline */}
         <div className="nav-secondary">
+          <NavLink to="/how-to-play" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
+            How to Play
+          </NavLink>
           <NavLink to="/about" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
             About
           </NavLink>
@@ -82,6 +92,9 @@ export default function NavBar({ onShowHow, lightMode, onToggleLight, colorblind
           </button>
           {moreOpen && (
             <div className="nav-more-dropdown">
+              <NavLink to="/how-to-play" className={({ isActive }) => `nav-more-item${isActive ? " active" : ""}`}>
+                How to Play
+              </NavLink>
               <NavLink to="/about" className={({ isActive }) => `nav-more-item${isActive ? " active" : ""}`}>
                 About
               </NavLink>
