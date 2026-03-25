@@ -69,10 +69,13 @@ export default function NavBar({ lightMode, onToggleLight, colorblind, onToggleC
           </NavLink>
         </div>
 
-        {/* Desktop: show How to Play + About + Privacy inline */}
+        {/* Desktop: secondary links */}
         <div className="nav-secondary">
           <NavLink to="/how-to-play" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
             How to Play
+          </NavLink>
+          <NavLink to="/faq" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
+            FAQ
           </NavLink>
           <NavLink to="/about" className={({ isActive }) => `nav-secondary-link${isActive ? " active" : ""}`}>
             About
@@ -94,6 +97,9 @@ export default function NavBar({ lightMode, onToggleLight, colorblind, onToggleC
             <div className="nav-more-dropdown">
               <NavLink to="/how-to-play" className={({ isActive }) => `nav-more-item${isActive ? " active" : ""}`}>
                 How to Play
+              </NavLink>
+              <NavLink to="/faq" className={({ isActive }) => `nav-more-item${isActive ? " active" : ""}`}>
+                FAQ
               </NavLink>
               <NavLink to="/about" className={({ isActive }) => `nav-more-item${isActive ? " active" : ""}`}>
                 About

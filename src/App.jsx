@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import CSS, { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS, STATS_PAGE_CSS, ABOUT_CSS } from "./shared/styles";
+import CSS, { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS, STATS_PAGE_CSS, ABOUT_CSS, FOOTER_CSS } from "./shared/styles";
 import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
 import Daily from "./pages/Daily";
 import Archive from "./pages/Archive";
 import Unlimited from "./pages/Unlimited";
@@ -9,6 +10,7 @@ import Privacy from "./pages/Privacy";
 import About from "./pages/About";
 import Stats from "./pages/Stats";
 import HowToPlay from "./pages/HowToPlay";
+import FAQ from "./pages/FAQ";
 
 export default function App() {
   const [contestants,  setContestants]  = useState([]);
@@ -26,7 +28,7 @@ export default function App() {
   if (loading) return (
     <>
       <style>{CSS}</style>
-      <style>{TAB_CSS}{SUBTAB_CSS}{PRIVACY_CSS}{STATS_PAGE_CSS}{ABOUT_CSS}</style>
+      <style>{TAB_CSS}{SUBTAB_CSS}{PRIVACY_CSS}{STATS_PAGE_CSS}{ABOUT_CSS}{FOOTER_CSS}</style>
       <div className="page"><div className="loading">🔥 Loading the tribe…</div></div>
     </>
   );
@@ -34,7 +36,7 @@ export default function App() {
   return (
     <>
       <style>{CSS}</style>
-      <style>{TAB_CSS}{SUBTAB_CSS}{PRIVACY_CSS}{STATS_PAGE_CSS}{ABOUT_CSS}</style>
+      <style>{TAB_CSS}{SUBTAB_CSS}{PRIVACY_CSS}{STATS_PAGE_CSS}{ABOUT_CSS}{FOOTER_CSS}</style>
       <style>{lightMode ? "body{background:#f5f0e8}" : "body{background:#0a0a0a}"}</style>
       <div className={lightMode ? "light" : ""}>
 
@@ -54,8 +56,11 @@ export default function App() {
             <Route path="/privacy"     element={<Privacy />} />
             <Route path="/about"       element={<About />} />
             <Route path="/how-to-play" element={<HowToPlay />} />
+            <Route path="/faq"         element={<FAQ />} />
           </Routes>
         </div>
+
+        <Footer />
 
       </div>
     </>
