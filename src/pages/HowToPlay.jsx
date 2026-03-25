@@ -206,7 +206,7 @@ export default function HowToPlay() {
           <h1>How to Play Survivordle</h1>
           <p>
             A daily guessing game for Survivor fans. Every day at midnight ET, a new castaway is chosen,
-            figure out who it is using as few guesses as possible. Survivor's ready... go!
+            figure out who it is using as few guesses as possible. Survivors ready... go!
           </p>
         </div>
 
