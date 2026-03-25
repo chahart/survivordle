@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
-import posthog from "posthog-js";
+import { Routes, Route } from "react-router-dom";
 import CSS, { TAB_CSS, SUBTAB_CSS, PRIVACY_CSS, STATS_PAGE_CSS, ABOUT_CSS } from "./shared/styles";
 import NavBar from "./components/NavBar";
 import Daily from "./pages/Daily";
@@ -16,12 +15,6 @@ export default function App() {
   const [loading,      setLoading]      = useState(true);
   const [lightMode,    setLightMode]    = useState(false);
   const [colorblind,   setColorblind]   = useState(false);
-
-  // Track pageviews manually for PostHog Web Analytics (uses separate WA quota)
-  const location = useLocation();
-  useEffect(() => {
-    posthog.capture("$pageview", { $current_url: window.location.href });
-  }, [location.pathname]);
 
   useEffect(() => {
     fetch("/contestants.json")

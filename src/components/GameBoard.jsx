@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo} from "react";
-import posthog from "posthog-js";
 
 const TRIBE_COLOR_MAP = {
   "Black":       "#333333",
@@ -86,7 +85,6 @@ export default function GameBoard({
     const fg = firstGuess || (newGuesses[0] ? `${newGuesses[0].name} - ${newGuesses[0].seasonNameFull}` : null);
     const sg = secondGuess || (newGuesses[1] ? `${newGuesses[1].name} - ${newGuesses[1].seasonNameFull}` : null);
 
-    // Supabase logging
     logSolveEvent({
       puzzle: `${answer.name} - ${answer.seasonNameFull}`,
       guesses: newGuesses.length,
@@ -95,21 +93,6 @@ export default function GameBoard({
       mode: didGiveUp ? `${mode}-giveup` : mode,
       firstGuess: fg,
       secondGuess: sg,
-    });
-
-    // PostHog — game completed event
-    posthog.capture("game_completed", {
-      mode,
-      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
-      puzzle_num: puzzleNum,
-      guesses: didWin ? newGuesses.length : 9,
-      won: didWin,
-      gave_up: didGiveUp,
-      hints_used: hintEpisode || hintNeighbors,
-      outcome_hint_used: hintEpisode,
-      neighbors_hint_used: hintNeighbors,
-      first_guess: fg,
-      second_guess: sg,
     });
 
     onComplete?.({ won: didWin, guessCount: newGuesses.length, emojiGrid, guesses: newGuesses, results: newResults, gaveUp: didGiveUp });
@@ -126,15 +109,13 @@ export default function GameBoard({
     const newGuesses = [...guesses, c];
     const newResults = [...results, result];
 
-    // Track first guess
     if (newGuesses.length === 1) {
       setFirstGuess(`${c.name} - ${c.seasonNameFull}`);
     }
     if (newGuesses.length === 2) {
-  setSecondGuess(`${c.name} - ${c.seasonNameFull}`);
-  }
+      setSecondGuess(`${c.name} - ${c.seasonNameFull}`);
+    }
 
-    // PostHog — each individual guess
     setGuesses(newGuesses);
     setResults(newResults);
     setQuery(""); setDebouncedQuery(""); setActiveIdx(-1);
@@ -148,14 +129,6 @@ export default function GameBoard({
   }
 
   function handleGiveUp() {
-    // PostHog — give up
-    posthog.capture("gave_up", {
-      mode,
-      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
-      puzzle_num: puzzleNum,
-      guesses_made: guesses.length,
-      hints_used: hintEpisode || hintNeighbors,
-    });
     setGaveUp(true); setGameOver(true);
     finish(guesses, results, false, true);
   }
@@ -163,25 +136,11 @@ export default function GameBoard({
   function handleHintEpisode() {
     setHintEpisode(true);
     onMidGame?.({ guesses, results, hintEpisode: true, hintNeighbors });
-    posthog.capture("hint_used", {
-      mode,
-      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
-      puzzle_num: puzzleNum,
-      hint_type: "outcome",
-      guesses_at_hint: guesses.length,
-    });
   }
 
   function handleHintNeighbors() {
     setHintNeighbors(true);
     onMidGame?.({ guesses, results, hintEpisode, hintNeighbors: true });
-    posthog.capture("hint_used", {
-      mode,
-      puzzle: `${answer.name} - ${answer.seasonNameFull}`,
-      puzzle_num: puzzleNum,
-      hint_type: "neighbors",
-      guesses_at_hint: guesses.length,
-    });
   }
 
   function handleKeyDown(e) {
@@ -212,14 +171,6 @@ export default function GameBoard({
     navigator.clipboard?.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      // PostHog — share
-      posthog.capture("result_shared", {
-        mode,
-        puzzle: `${answer.name} - ${answer.seasonNameFull}`,
-        puzzle_num: puzzleNum,
-        won,
-        guesses: guesses.length,
-      });
     });
   }
 
@@ -261,7 +212,6 @@ export default function GameBoard({
               onChange={e => { setQuery(e.target.value); setActiveIdx(-1); }}
               onKeyDown={handleKeyDown}
             />
-
           </div>
           <div className="search-note">You are guessing a castaway and their specific season appearance</div>
           {suggestions.length > 0 && (
@@ -370,8 +320,8 @@ export default function GameBoard({
           <br />
           <br />
           <a href="https://x.com/Survivordle" target="_blank" rel="noopener noreferrer" className="about-link">
-              Follow us on 𝕏 @Survivordle
-            </a>
+            Follow us on 𝕏 @Survivordle
+          </a>
         </div>
       )}
 

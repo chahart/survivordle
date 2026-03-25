@@ -67,13 +67,7 @@ export default function Privacy() {
         <section className="privacy-section">
           <h2 className="privacy-heading">Analytics</h2>
           <p>
-            We use <strong>PostHog</strong> to understand how players interact with the game —
-            for example, which pages are visited and how gameplay sessions flow. PostHog collects
-            standard anonymized web analytics data such as page views, session duration, and
-            interaction events. No personal information is included.
-          </p>
-          <p>
-            We also use <strong>Vercel Analytics</strong> for basic site performance monitoring,
+            We use <strong>Vercel Analytics</strong> for basic site performance monitoring,
             which collects anonymized traffic data.
           </p>
           <p>
@@ -106,7 +100,6 @@ export default function Privacy() {
           <p>The following third-party services are used by Survivordle:</p>
           <ul className="privacy-list">
             <li><strong>Supabase</strong> — anonymous game event storage (<a className="privacy-link" href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
-            <li><strong>PostHog</strong> — product analytics (<a className="privacy-link" href="https://posthog.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
             <li><strong>Vercel</strong> — hosting and performance analytics (<a className="privacy-link" href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
           </ul>
         </section>
