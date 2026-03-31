@@ -89,6 +89,57 @@ const POST_CSS = `
   font-style: italic;
 }
 
+.post-body h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  color: var(--text);
+  margin: 28px 0 10px;
+}
+
+.post-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0 24px;
+  font-size: 14px;
+}
+
+.post-body th {
+  text-align: left;
+  padding: 8px 12px;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.post-body td {
+  padding: 8px 12px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+}
+
+.post-formula {
+  background: rgba(232, 116, 42, 0.06);
+  border-left: 3px solid #e8742a;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 2.1;
+  color: var(--text2);
+}
+
+.post-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 16px 0;
+  display: block;
+}
+
 .post-footer {
   margin-top: 56px;
   padding-top: 28px;
@@ -338,9 +389,292 @@ function PostHowIBuilt() {
   );
 }
 
+function PostBestFirstGuess() {
+  const ageChart = "/age-graph.png";
+
+  return (
+    <div className="post-body">
+      <p>
+        Everyone has an opener. Some people start with MLB Hall of Famer Jeff Kent, who famously called out
+        President Barack Obama after getting voted out. Some go with the winner or Sia's fan favorite of a
+        recent season. Others throw in a random early boot just for fun. These are all valid, and there's no
+        wrong answer, but I wanted to know what the math actually said about the best possible first guess.
+      </p>
+      <p>
+        So, I built a scoring system that evaluates every castaway's appearance in the Survivordle dataset as a first guess.
+        Here's what I found.
+      </p>
+
+      <h2>Why This Is Interesting</h2>
+      <p>
+        Survivordle is a game of narrowing, similar to <em>Guess Who?</em>, but with the people as niche
+        internet celebrities who talk about hidden immunity idols and have way too dramatic RHAP post-game
+        interviews. Each guess chips away at the pool of 893 possible answers until zeroing in on a single
+        castaway, or giving up, similar to the likes of Purple Kelly. Guessing anyone gives you information,
+        but some guesses give more information than others. After watching{" "}
+        <a href="https://www.youtube.com/watch?v=v68zYyaEmEA" target="_blank" rel="noopener noreferrer">
+          3Blue1Brown's Solving Wordle using information theory
+        </a>
+        , where math is used to determine which five-letter word does the best job as a first guess, I wanted
+        to apply similar tactics to Survivordle.
+      </p>
+      <p>
+        The idea is simple: I simulate every castaway as a first guess against every other castaway as the
+        possible answer. Score all of them based on the "quality" of the guess, average across all possible
+        answers, and you have an objective ranking of every opener in the game, from 1 to 893.
+      </p>
+
+      <h2>How the Scoring Works</h2>
+      <p>
+        Each guess in Survivordle reveals six pieces of information: Season, Placement, Gender, Tribe Color,
+        Returnee Status, and Age. For a first guess to be effective, it needs to paint the clearest possible
+        picture for the next guess.
+      </p>
+      <p>
+        Not all six columns are equal, and two of them don't affect the strength of a first guess at all.
+      </p>
+      <p>
+        <strong>Gender and Returnee Status do not matter for this.</strong> At first this might seem weird,
+        but it makes sense. For example, if you guess a male non-returnee like Ken Hoang and the answer is a
+        female returnee like Eliza Orlins, both cells come back gray, which displays as much information as
+        if you'd guessed a female returnee and gotten two greens. The information gained is identical
+        regardless of which value you guessed, so these columns aren't included in the modeling.
+      </p>
+      <p>
+        The four columns that actually drive the score are:
+      </p>
+      <p>
+        <strong>Season &gt; Placement &gt; Age &gt; Tribe Color</strong>
+      </p>
+      <p>
+        <em>
+          Note: This is subjective, and my best guess at the consensus of Survivordle players and Survivor
+          fans alike. The top two are easily Season and Placement, with Age being relevant but many exact ages
+          are unknown. Tribe Color gives good feedback, but is less well-known than the others, so it matters
+          the least. There are also two non-binary contestants in the dataset, and since on the second guess,
+          you can figure that out, gender is not used. There are slightly more male appearances than females,
+          and significantly more non-returnees than returnees. 
+          Lastly, different contestants can have different scores from different seasons.
+        </em>
+      </p>
+
+      <h3>The Formula</h3>
+      <p>
+        For each (guess, answer) pair, the score is the sum of column scores across Season (S), Placement (P),
+        Age (A), and Tribe Color (T). Each column contributes based on the result:
+      </p>
+      <div className="post-formula">
+        <div><strong>Green</strong> (exact match) — column weight × 1.0</div>
+        <div><strong>Orange</strong> (within threshold) — column weight × 0.5</div>
+        <div><strong>Gray with direction arrow</strong> — column weight × (castaways eliminated by arrow ÷ 892)</div>
+        <div><strong>Gray, tribe color only</strong> — 0</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Weight</th>
+            <th>Threshold for Orange</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Season</td><td>10</td><td>±2 seasons</td></tr>
+          <tr><td>Placement</td><td>8</td><td>±3 places</td></tr>
+          <tr><td>Age</td><td>3</td><td>±5 years</td></tr>
+          <tr><td>Tribe Color</td><td>1</td><td>exact only</td></tr>
+        </tbody>
+      </table>
+
+      <h3>The Dynamic Gray Score</h3>
+      <p>
+        The most important part of the formula is the gray & direction score. Unlike Wordle, where wrong
+        letters are simply wrong, a wrong Season, Placement, or Age still gives you important context for
+        the process of elimination. The value of that information depends entirely on where in the distribution
+        your guess falls.
+      </p>
+      <p>
+        The formula scores are based on this: the gray & direction score equals the column weight multiplied
+        by the fraction of the 892-person pool that arrow actually eliminates. A perfectly centered guess
+        extracts the most information even on a complete miss, because every arrow cuts the field as close
+        to 50/50 as possible.
+      </p>
+      <p>
+        If you guess Season 10 and the answer is Season 40, the Up arrow eliminates everyone from Seasons 1–10. 
+        Since the early seasons were smaller, that might only eliminate 150 people. 
+        But guessing Season 25 eliminates nearly half the field regardless of which way the arrow points, 
+        so even a wrong guess there is more informative than a wrong guess at the extremes.
+      </p>
+      <p>
+        With that being said, let's look at what a strong Survivordle first guess should look like.
+      </p>
+
+      <h2>The Ideal Profile</h2>
+      <p>
+        Before looking at the rankings, it helps to understand what high-scoring castaways have in common.
+        The model gravitates toward a very specific archetype.
+      </p>
+      <p>
+        <strong>Seasons 24 to 28 provide an excellent middle ground.</strong> A guess in this range resulting
+        in gray would leave you with about 20 seasons in each direction. Guessing Season 1 or Season 49 leaves
+        you in gray territory against most of the field, and the arrow barely cuts anything. Season 25 is
+        technically the middle season, but there are more populated casts in the seasons later than 25,
+        suggesting that Season 26 or 27 might be a stronger starting point.
+      </p>
+      <p>
+        <strong>Early Jury is the way to go.</strong> Mid-placement covers a wideband of the field. Winners
+        and first boots sit at the extremes and produce nearly useless directional arrows. Someone who finished
+        8th–11th sits comfortably in the middle, giving you a clean split in both directions.
+      </p>
+      <p>
+        <strong>Thirty-something year olds are a good pick.</strong> The age distribution peaks in the early-to-mid
+        30s. A guess near that center covers most ground on a yellow, and extracts the maximum information from
+        a wrong answer. Guessing senior citizens produces a down arrow that eliminates almost nobody. But Carl
+        Bilancione is still in the top 5 most common guesses, hmm…
+      </p>
+      <img src={ageChart} alt="Age distribution of Survivor castaways in the Survivordle dataset" />
+      <p>
+        The figure above shows that the age distribution technically peaks in the late 20s, but skews toward
+        older ages, making the mean and median in the 30s.
+      </p>
+      <p>
+        <strong>Popular tribe color.</strong> Blue/Teal (21.8%), Yellow/Gold (19.2%), Orange (18.5%), and
+        Red (15.9%) make up over 75% of all tribe assignments. A correct tribe color is a small bonus, worth
+        +1 in the model, and more common with these colors than with Magenta, Brown, or Black.
+      </p>
+
+      <h2>The Leaderboard</h2>
+      <p>
+        When calculating the scores, the best score received 100%, and everything else was scaled in relation
+        to that, then graded on a letter system with pluses and minuses down to 60% — everything below 60
+        became an F.
+      </p>
+
+      <h3>S-Tier (Score: 100)</h3>
+      <p>
+        Only two castaways in the entire dataset score a perfect 100. Amazingly, they are brothers.
+      </p>
+      <p>
+        <strong>#1 Vytas Baskauskas</strong> (Season 27, 10th place, Age 33, Red) and{" "}
+        <strong>#2 Aras Baskauskas</strong> (Season 27, 11th place, Age 31, Yellow/Gold) are the <strong>only</strong> two
+        S-tier first guesses in Survivordle. The Baskauskas brothers have near-identical profiles and fit the
+        criteria perfectly to split each tier of season, placement, and age. Aras was a former winner, but his
+        brother narrowly took the crown as the best Survivordle first guess.
+      </p>
+
+      <h3>A+ Tier (Scores 97–99.9)</h3>
+      <p>
+        21 castaways land here, all from Seasons 22–30, all with placements between 8th and 12th.
+      </p>
+      <p>
+        <strong>#3 Reynold Toepfer</strong> (Season 26, 8th place, Age 30, Orange) is damn near as close to
+        S-Tier as it gets. Season 26 of 49, placement right in the middle, age near the mean.{" "}
+        <strong>#5 Sarah Lacina</strong> (Season 28, 11th place, Age 29, Orange) makes the list as the
+        top-scoring female. <strong>#11 RC Saint-Amour</strong> (Season 25, 11th place, Age 27, Yellow/Gold)
+        is the most common first guess, but falls just short of the top for a slightly younger age than
+        average. <strong>#14 Jeremy Collins</strong> (Season 29, 10th place, Age 36, Blue/Teal) scores an A+
+        on his first appearance, only for the rest of his results to be significantly lower on the scale.
+      </p>
+
+      <h3>A Tier (Scores 93–96.9)</h3>
+      <p>
+        48 castaways fall here, placing from 6th–13th on seasons 17–34.
+      </p>
+      <p>
+        <strong>#25 Malcolm Freberg</strong> earns an A from his second stint in Caramoan.{" "}
+        <strong>#26 Courtney Yates</strong> makes a strong case from Heroes vs. Villains.{" "}
+        <strong>#52 John Cochran</strong> from South Pacific makes an appearance as well. Less than 10% of
+        guesses are A-Tier and above, putting these players in special territory.{" "}
+        <strong>#30, #41 Zeke Smith</strong> (Millennials vs. Gen X, Game Changers),{" "}
+        <strong>#31, #62 Joe Anglim</strong> (Worlds Apart, Cambodia), and{" "}
+        <strong>#45, #66 Laura Morett</strong> (Blood vs. Water, Samoa) all appear twice in A-Tier.
+      </p>
+      <p>
+        <strong>#18, #46 Brenda Lowe</strong> (Nicaragua, Caramoan) is the best returnee for a first guess,
+        appearing in both A+ and A tier. Congrats, Brenda! <strong>#75 Coach Wade</strong> is the best guess
+        for anyone currently on Survivor 50: In The Hands of the Fans.
+      </p>
+
+      <h3>B Tier (Scores 80–89.9)</h3>
+      <p>
+        This is where the model starts rewarding players who are close but slightly off on one or two
+        categories. You'll find <strong>Rupert Boneham</strong> on Heroes vs. Villains checking in with a
+        solid placement, but the season is slightly early and his higher age pulls the score down.{" "}
+        <strong>Cirie Fields</strong> on Game Changers grades out B- as her highest score from her four
+        appearances — giving her a brutal break once again as the best contestant to never win, or receive
+        an A tier or greater as a first Survivordle guess. The youngest person ever,{" "}
+        <strong>Will Wahl</strong>, finds himself in the B tier despite being 18 when he played.
+      </p>
+
+      <h3>C Tier (Scores 70–79.9)</h3>
+      <p>
+        The C tier has 200 players, all with some upside as guesses but nothing flashy. Here we see winners
+        like <strong>Kim Spradlin-Wolfe</strong> (highest scoring winner), <strong>Boston Rob</strong>,{" "}
+        <strong>Tony Vlachos</strong> (Cagayan), and <strong>Natalie Anderson</strong>. There is decent
+        information, but not a ton compared to the heavy hitters. Some other legends to reside in C tier:{" "}
+        <strong>Chet Welch</strong>, <strong>Shamar Thomas</strong>, and <strong>Jacquie Berg</strong>.
+      </p>
+
+      <h3>D and F Tier: More Than 1 in 4 Guesses Is Bad</h3>
+      <p>
+        Over 25% of the possible guesses were graded as an F, not even coming within 60% of the best
+        possible guess of the Baskauskas brothers. Lots of new era players, lots of early seasons. The extreme
+        ends of the spectrum regarding season, placement, and age.
+      </p>
+      <p>
+        <strong>Savannah Louie</strong> is the worst first guess from Survivor 50. S tier legend, F tier first
+        guess <strong>Wendy-Jo DeSmidt-Kohlhoff</strong> is the only player from Seasons 20–35 to land in F
+        tier. <strong>Aras Baskauskas</strong> has an incredible profile from Blood vs. Water, and also an
+        incredibly bad profile from his win on Survivor: Panama.
+      </p>
+      <p>
+        The three worst guesses in the entire dataset are the three oldest castaways from the Tagi tribe on
+        Season 1:
+      </p>
+      <p>
+        <strong>#893 Rudy Boesch</strong> (Season 1, 3rd place, Age 72, Orange). Rudy is a Survivor legend
+        that will always be remembered, but his profile as a Survivordle first guess is historically bad. The
+        age is almost guaranteed to be lower, the season is almost guaranteed to be higher, and the placement
+        is almost guaranteed to be higher. It doesn't quite get worse than that.
+      </p>
+      <p>
+        <strong>#892 Richard Hatch</strong> (Season 1, Winner, Age 39, Orange). Another legend from Season 1,
+        and this profile sticks out for similar reasons as Rudy's. Guessing the 1st place finisher from the
+        1st season is not a huge help when the answer is Mari Takahashi, who got 19th on Season 33. If you
+        are guessing Richard Hatch as a starter, there are bigger problems at hand.
+      </p>
+      <p>
+        <strong>#891 Sonja Christopher</strong> (Season 1, 16th place, Age 63, Orange). Once again, it makes
+        sense. The first person ever voted out on the show (and STILL more of a Game Changer than Sierra
+        Dawn-Thomas) is not a lot of information for a first guess. The three worst Survivordle guesses are
+        the three oldest contestants from the Tagi tribe on Survivor's first season. Funny how things work
+        out, and it's not hard to see why.
+      </p>
+
+      <h2>Should You Actually Use This?</h2>
+      <p>
+        Not really, lol. The model is weighted on what I think matters most in a Survivordle guess, and I
+        prioritized season and placement heavily because that's how most players (including myself) think
+        about the board. If you're someone who knows tribe colors and ages off the top of your head, get a
+        hobby. Just kidding, but the optimal guess for your style might look different. It's not that deep.
+      </p>
+      <p>
+        What's interesting is how the math reveals players you'd never think to guess. Nobody is starting
+        their rounds with Leif Manson or Reed Kelly. Yet, these are excellent openers — the math says why:
+        they sit in the middle of the important categories, and are unfortunately unimportant to Survivor fans
+        compared to players like Malcolm and Parvati.
+      </p>
+      <p>
+        This was a really cool experiment to conduct and write about. If you found this interesting and read
+        this far, let me know what else I should dig into about the nuances of Survivordle.
+      </p>
+    </div>
+  );
+}
+
 // ─── Post registry ──────────────────────────────────────────────────────────
 // Add new post components here as you write them.
 const POST_CONTENT = {
+  "best-first-guess": PostBestFirstGuess,
   "how-i-built-survivordle": PostHowIBuilt,
 };
 

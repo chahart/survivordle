@@ -67,7 +67,13 @@ export default function Privacy() {
         <section className="privacy-section">
           <h2 className="privacy-heading">Analytics</h2>
           <p>
-            We use <strong>Vercel Analytics</strong> for basic site performance monitoring,
+            We use <strong>PostHog</strong> to understand how players interact with the game —
+            for example, which pages are visited and how gameplay sessions flow. PostHog collects
+            standard anonymized web analytics data such as page views, session duration, and
+            interaction events. No personal information is included.
+          </p>
+          <p>
+            We also use <strong>Vercel Analytics</strong> for basic site performance monitoring,
             which collects anonymized traffic data.
           </p>
           <p>
