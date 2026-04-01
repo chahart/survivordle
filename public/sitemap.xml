@@ -44,6 +44,12 @@
   </url>
 
   <url>
+    <loc>https://survivordle.com/blog/best-first-guess</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
     <loc>https://survivordle.com/blog/how-i-built-survivordle</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
