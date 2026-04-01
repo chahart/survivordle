@@ -1,20 +1,27 @@
 import { useEffect } from "react";
 
+function setMeta(selector, attr, value) {
+  if (!value) return;
+  let el = document.querySelector(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    const [attrName, attrValue] = selector.match(/\[(.+?)="(.+?)"\]/).slice(1);
+    el.setAttribute(attrName, attrValue);
+    document.head.appendChild(el);
+  }
+  el.setAttribute(attr, value);
+}
+
 export default function useSEO({ title, description, canonical }) {
   useEffect(() => {
-    // Title
     if (title) document.title = title;
 
-    // Meta description
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement("meta");
-      metaDesc.setAttribute("name", "description");
-      document.head.appendChild(metaDesc);
-    }
-    if (description) metaDesc.setAttribute("content", description);
+    setMeta('meta[name="description"]', "content", description);
+    setMeta('meta[property="og:title"]', "content", title);
+    setMeta('meta[property="og:description"]', "content", description);
+    setMeta('meta[name="twitter:title"]', "content", title);
+    setMeta('meta[name="twitter:description"]', "content", description);
 
-    // Canonical
     let link = document.querySelector('link[rel="canonical"]');
     if (!link) {
       link = document.createElement("link");
