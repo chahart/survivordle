@@ -5,11 +5,11 @@ const CSS = `
 
   /* ── CSS Variables — dark mode (default) ── */
   :root {
-    --bg:           #0a0a0a;
-    --bg2:          #141414;
-    --bg3:          #1a1a1a;
-    --border:       #2e2e2e;
-    --border2:      #222;
+    --bg:           #1a1a1a;
+    --bg2:          #222222;
+    --bg3:          #2a2a2a;
+    --border:       #3a3a3a;
+    --border2:      #303030;
     --text:         #f0ede6;
     --text2:        #bbb;
     --text3:        #888;
@@ -21,40 +21,40 @@ const CSS = `
     --counter:      #666;
     --search-note:  #666;
     --hint-label:   #666;
-    --ac-bg:        #161616;
-    --ac-hover:     #222;
-    --ac-border:    #1e1e1e;
+    --ac-bg:        #242424;
+    --ac-hover:     #2e2e2e;
+    --ac-border:    #2c2c2c;
     --ac-meta:      #666;
-    --cell-wrong-bg:#111;
-    --cell-wrong-border: #2a2a2a;
+    --cell-wrong-bg:#1e1e1e;
+    --cell-wrong-border: #383838;
     --cell-wrong-text:   #777;
-    --empty-bg:     #0d0d0d;
-    --empty-border: #1a1a1a;
-    --hint-bg:      #111824;
-    --hint-border:  #2a2a4a;
+    --empty-bg:     #1c1c1c;
+    --empty-border: #2a2a2a;
+    --hint-bg:      #1e2330;
+    --hint-border:  #353558;
     --hint-label-c: #5a5a9a;
     --hint-val:     #9898d8;
-    --hint-btn-bg:  #161624;
-    --hint-btn-border: #2e2e4e;
+    --hint-btn-bg:  #22223a;
+    --hint-btn-border: #38385a;
     --hint-btn-text:#8888cc;
-    --modal-bg:     #141414;
-    --modal-border: #2e2e2e;
-    --shadow:       rgba(0,0,0,0.8);
+    --modal-bg:     #222222;
+    --modal-border: #3a3a3a;
+    --shadow:       rgba(0,0,0,0.7);
     --how-border:   #444;
     --how-color:    #888;
     --giveup-border:#4a1a1a;
     --giveup-color: #c0504a;
-    --nav-bg:       #0f0f0f;
-    --nav-border:   #1e1e1e;
+    --nav-bg:       #1e1e1e;
+    --nav-border:   #2c2c2c;
   }
 
   /* ── Light mode overrides ── */
   .light {
-    --bg:           #f5f0e8;
-    --bg2:          #ffffff;
-    --bg3:          #ede8de;
-    --border:       #d0c8bc;
-    --border2:      #d8d0c4;
+    --bg:           #e8e2d8;
+    --bg2:          #f0ebe0;
+    --bg3:          #ddd8cc;
+    --border:       #c0b8aa;
+    --border2:      #c8c0b4;
     --text:         #1a1410;
     --text2:        #3a3028;
     --text3:        #6a5e50;
