@@ -259,7 +259,7 @@ export default function GameBoard({
           >
             {hintNeighbors ? "✓ Neighbors Revealed" : "💡 Reveal Voted-Out Neighbors"}
           </button>
-          {!gameOver && (
+          {!gameOver && !won &&(
             <button className="giveup-btn" onClick={handleGiveUp}>Give Up</button>
           )}
         </div>
