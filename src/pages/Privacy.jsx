@@ -67,13 +67,7 @@ export default function Privacy() {
         <section className="privacy-section">
           <h2 className="privacy-heading">Analytics</h2>
           <p>
-            We use <strong>PostHog</strong> to understand how players interact with the game —
-            for example, which pages are visited and how gameplay sessions flow. PostHog collects
-            standard anonymized web analytics data such as page views, session duration, and
-            interaction events. No personal information is included.
-          </p>
-          <p>
-            We also use <strong>Vercel Analytics</strong> for basic site performance monitoring,
+            We use <strong>Vercel</strong> and <strong>Cloudflare</strong> for basic site performance monitoring and hosting,
             which collects anonymized traffic data.
           </p>
           <p>
@@ -94,19 +88,19 @@ export default function Privacy() {
 
         <section className="privacy-section">
           <h2 className="privacy-heading">Advertising</h2>
-          <p>
-            Survivordle may display advertisements in the future through third-party ad networks
-            such as Google AdSense. If and when ads are introduced, this policy will be updated
-            to reflect any additional data practices required by those networks.
-          </p>
+<p>All or partial advertising on this Website or App is managed by Playwire LLC. 
+  If Playwire publisher advertising services are used, Playwire LLC may collect and use certain aggregated and anonymized data for advertising purposes. 
+  To learn more about the types of data collected, how data is used and your choices as a user, please visit 
+  <a href="https://www.playwire.com/privacy-policy">https://www.playwire.com/privacy-policy</a>.</p>
         </section>
 
         <section className="privacy-section">
           <h2 className="privacy-heading">Third-Party Services</h2>
           <p>The following third-party services are used by Survivordle:</p>
           <ul className="privacy-list">
-            <li><strong>Supabase</strong> — anonymous game event storage (<a className="privacy-link" href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
-            <li><strong>Vercel</strong> — hosting and performance analytics (<a className="privacy-link" href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
+            <li><strong>Supabase</strong>: anonymous game event storage (<a className="privacy-link" href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
+            <li><strong>Vercel</strong>: hosting and performance analytics (<a className="privacy-link" href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
+             <li><strong>Cloudflare</strong>: hosting and performance analytics (<a className="privacy-link" href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">privacy policy</a>)</li>
           </ul>
         </section>
 
