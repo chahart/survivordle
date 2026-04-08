@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
 
+User-Agent: Verity/1.1 (https://gumgum.com/verity; verity-support@gumgum.com)
+Allow: /
+
+User-agent: AmazonAdBot
+Allow: /
+
 Sitemap: https://survivordle.com/sitemap.xml
